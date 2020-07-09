@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Example Webpage</title>
+  <meta name="description" content="Trackr demonstration webpage">
+</head>
+<body>
+  <h1>Example webpage</h1>
+<script>
+  (function(t, r, a, c, k, m, e){
+    r[k]=r[k]||function(){
+      (r[k].q=r[k].q||[]).push(arguments)
+    };
+    m=t.createElement(a),
+    e=t.getElementsByTagName(a)[0];
+    m.async=1; m.src=c; m.id='trackr-script';
+    e.parentNode.insertBefore(m,e)
+  })(document, window, 'script', 'http://localhost:8080/trackr.js', 'trackr');
+  trackr('create', 'UA-XXXX-Y', 'auto');
+  trackr('send', 'pageview');
+</script>
+</body>
+</html>
