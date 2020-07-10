@@ -56,7 +56,7 @@ pkg/assets/statik.go: assets/trackr.min.js
 ## Build executable
 build: pkg/assets/statik.go
 	-mkdir -p release
-	echo "Building: $(EXECUTABLE) $(VERSION) for $(GOOS)-$(GOARCH) ..."
+	echo ">>> Building: $(EXECUTABLE) $(VERSION) for $(GOOS)-$(GOARCH) ..."
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags "$(LDFLAGS)" -o release/$(EXECUTABLE)
 .PHONY: build
 
@@ -69,13 +69,13 @@ test:
 
 ## Install executable
 install: release/$(EXECUTABLE)
-	echo "Installing $(EXECUTABLE) to ${HOME}/.local/bin/$(EXECUTABLE) ..."
+	echo ">>> Installing $(EXECUTABLE) to ${HOME}/.local/bin/$(EXECUTABLE) ..."
 	cp release/$(EXECUTABLE) ${HOME}/.local/bin/$(EXECUTABLE)
 .PHONY: install
 
 ## Create Docker image
 image:
-	echo "Building Docker image ..."
+	echo ">>> Building Docker image ..."
 	docker build --rm -t ncarlier/$(APPNAME) .
 .PHONY: image
 
@@ -85,7 +85,7 @@ CHANGELOG.md:
 
 ## Create archive
 archive: release/$(EXECUTABLE)
-	echo "Creating release/$(ARCHIVE) archive..."
+	echo ">>> Creating release/$(ARCHIVE) archive..."
 	tar czf release/$(ARCHIVE) README.md LICENSE CHANGELOG.md -C release/ $(EXECUTABLE)
 	rm release/$(EXECUTABLE)
 .PHONY: archive
