@@ -1,6 +1,6 @@
 module github.com/ncarlier/trackr
 
-go 1.13
+go 1.14
 
 require (
 	github.com/goadesign/goa v2.1.3+incompatible // indirect
