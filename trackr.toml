@@ -14,10 +14,10 @@ tracking_id = "UA-XXXX-Y"
   ## Data format to output.
   data_format = "template"
 
-#[[outputs.prometheus]]
-#  ## Address to listen on
-#  listen = ":9273"
-#  ## Path to publish the metrics on.
-#  path = "/metrics"
-#  ## Expiration interval for each metric. 0 == no expiration
-#  # expiration_interval = "60s"
+[[outputs.prometheus]]
+  ## Address to listen on
+  listen = ":9213"
+  ## Path to publish the metrics on.
+  path = "/metrics"
+  ## Expiration interval for each metric. 0 == no expiration
+  # expiration_interval = "60s"
