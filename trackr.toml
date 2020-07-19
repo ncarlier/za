@@ -1,0 +1,19 @@
+# Track configuration
+
+[global]
+  batch_size = 10
+  batch_interval = "10s"
+
+[[outputs.file]]
+  ## Files to write to, "stdout" is a specially handled file.
+  files = ["stdout"]
+  ## Data format to output.
+  data_format = "template"
+
+#[[outputs.prometheus]]
+#  ## Address to listen on
+#  listen = ":9273"
+#  ## Path to publish the metrics on.
+#  path = "/metrics"
+#  ## Expiration interval for each metric. 0 == no expiration
+#  # expiration_interval = "60s"

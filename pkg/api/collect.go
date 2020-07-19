@@ -10,14 +10,14 @@ import (
 	"github.com/ncarlier/trackr/pkg/config"
 	"github.com/ncarlier/trackr/pkg/helper"
 	"github.com/ncarlier/trackr/pkg/logger"
+	"github.com/ncarlier/trackr/pkg/manager"
 	"github.com/ncarlier/trackr/pkg/model"
-	"github.com/ncarlier/trackr/pkg/output"
 )
 
 func collectHandler(conf *config.Config) http.Handler {
-	writer, err := output.NewPrometheusOutputWriter("http://0.0.0.0:9090")
+	outputs, err := manager.NewOutputsManager(conf)
 	if err != nil {
-		logger.Error.Fatalf("unable to creat metric writer: %s", err)
+		logger.Error.Fatalf("unable to initialize outputs manager: %s", err)
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !isAllowedToCollect(r) {
@@ -33,6 +33,9 @@ func collectHandler(conf *config.Config) http.Handler {
 		// - device and browser from User-Agent
 		pageview := model.PageView{
 			TrackingID:       q.Get("tid"),
+			ClientIP:         parseClientIP(r),
+			Protocol:         r.Proto,
+			UserAgent:        r.UserAgent(),
 			DocumentHostName: parseHostname(q.Get("dh")),
 			DocumentPath:     parsePathname(q.Get("dp")),
 			DocumentReferrer: q.Get("dr"),
@@ -41,8 +44,8 @@ func collectHandler(conf *config.Config) http.Handler {
 			Timestamp:        time.Now(),
 		}
 
-		// Write metric
-		writer.Write(pageview)
+		// Send page view to outputs manager
+		outputs.Send(pageview)
 
 		// Set tracking information header
 		w.Header().Set("Tk", "N")
@@ -98,4 +101,12 @@ func parseHostname(r string) string {
 		return ""
 	}
 	return u.Scheme + "://" + u.Host
+}
+
+func parseClientIP(r *http.Request) string {
+	clientIP := r.RemoteAddr
+	if colon := strings.LastIndex(clientIP, ":"); colon != -1 {
+		clientIP = clientIP[:colon]
+	}
+	return clientIP
 }

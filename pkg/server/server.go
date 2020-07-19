@@ -30,11 +30,17 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 // NewServer creates new server instance
-func NewServer(cfg *config.Config) *Server {
+func NewServer(flags *config.Flags) *Server {
+	conf := config.NewConfig()
+	err := conf.LoadConfig(flags.ConfigFile)
+	if err != nil {
+		logger.Error.Fatal("unable to load configuration: ", err)
+	}
+
 	server := &Server{}
 	server.self = &http.Server{
-		Addr:    cfg.ListenAddr,
-		Handler: api.NewRouter(cfg),
+		Addr:    flags.ListenAddr,
+		Handler: api.NewRouter(conf),
 	}
 	return server
 }

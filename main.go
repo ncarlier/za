@@ -12,13 +12,14 @@ import (
 	"github.com/ncarlier/trackr/pkg/api"
 	"github.com/ncarlier/trackr/pkg/config"
 	"github.com/ncarlier/trackr/pkg/logger"
+	_ "github.com/ncarlier/trackr/pkg/outputs/all"
 	"github.com/ncarlier/trackr/pkg/server"
 	"github.com/ncarlier/trackr/pkg/version"
 	configflag "github.com/ncarlier/webhookd/pkg/config/flag"
 )
 
 func main() {
-	conf := &config.Config{}
+	conf := &config.Flags{}
 	configflag.Bind(conf, "TRACKR")
 
 	flag.Parse()

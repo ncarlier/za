@@ -76,7 +76,7 @@
 
   function getTrackerUrl() {
     const el = document.getElementById('trackr-script');
-    return el ? el.src.replace('trackr.js', 'collect') : '';
+    return el ? el.src.replace(/trackr(\.min)?\.js/, 'collect') : '';
   }
 
   function getCanonicalURL(loc) {
