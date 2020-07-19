@@ -24,21 +24,26 @@ func collectHandler(conf *config.Config) http.Handler {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
-
-		// TODO match tracking ID with referer HTTP header
-
 		q := r.URL.Query()
+
+		trackinID := q.Get("tid")
+		if !conf.ValidateTrackingID(r.Referer(), trackinID) {
+			logger.Debug.Printf("tracking ID %s doesn't match website origin: %s", trackinID, r.Referer())
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
 		// TODO collect more data:
 		// - country code from request IP
 		// - device and browser from User-Agent
 		pageview := model.PageView{
-			TrackingID:       q.Get("tid"),
+			TrackingID:       trackinID,
 			ClientIP:         parseClientIP(r),
 			Protocol:         r.Proto,
 			UserAgent:        r.UserAgent(),
 			DocumentHostName: parseHostname(q.Get("dh")),
 			DocumentPath:     parsePathname(q.Get("dp")),
-			DocumentReferrer: q.Get("dr"),
+			DocumentReferer:  q.Get("dr"),
 			IsNewVisitor:     q.Get("nv") == "1",
 			IsNewSession:     q.Get("ns") == "1",
 			Timestamp:        time.Now(),

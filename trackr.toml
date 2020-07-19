@@ -1,8 +1,12 @@
 # Track configuration
 
 [global]
-  batch_size = 10
-  batch_interval = "10s"
+batch_size = 10
+batch_interval = "10s"
+
+[[websites]]
+origin = "http://localhost:8000"
+tracking_id = "UA-XXXX-Y"
 
 [[outputs.file]]
   ## Files to write to, "stdout" is a specially handled file.

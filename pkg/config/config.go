@@ -4,18 +4,21 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/influxdata/toml"
 	"github.com/influxdata/toml/ast"
+	"github.com/ncarlier/trackr/pkg/model"
 	"github.com/ncarlier/trackr/pkg/outputs"
 	"github.com/ncarlier/trackr/pkg/serializers"
 )
 
 // Config is the root of the configuration
 type Config struct {
-	Global  GlobalConfig
-	Outputs []*outputs.Output
+	Global   GlobalConfig
+	WebSites []model.WebSite
+	Outputs  []*outputs.Output
 }
 
 // GlobalConfig is the global section fo the configuration
@@ -31,9 +34,20 @@ func NewConfig() *Config {
 			BatchSize:     10,
 			BatchInterval: Duration{Duration: 10 * time.Second},
 		},
-		Outputs: make([]*outputs.Output, 0),
+		WebSites: make([]model.WebSite, 0),
+		Outputs:  make([]*outputs.Output, 0),
 	}
 	return c
+}
+
+// ValidateTrackingID validate that origin matches with the tracking ID
+func (c *Config) ValidateTrackingID(origin, trackingID string) bool {
+	for _, website := range c.WebSites {
+		if strings.HasPrefix(origin, website.Origin) && website.TrackingID == trackingID {
+			return true
+		}
+	}
+	return false
 }
 
 // LoadConfig loads the given config file and applies it to c
@@ -51,6 +65,7 @@ func (c *Config) LoadConfig(path string) error {
 	if err != nil {
 		return err
 	}
+
 	// Parse global table:
 	if val, ok := tbl.Fields["global"]; ok {
 		subTable, ok := val.(*ast.Table)
@@ -61,6 +76,22 @@ func (c *Config) LoadConfig(path string) error {
 			return fmt.Errorf("error parsing global table: %w", err)
 		}
 	}
+
+	// Parse websites table:
+	if val, ok := tbl.Fields["websites"]; ok {
+		subTable, ok := val.([]*ast.Table)
+		if !ok {
+			return fmt.Errorf("invalid configuration, error parsing websites table")
+		}
+		for _, websiteTable := range subTable {
+			if err = c.addWebsite(websiteTable); err != nil {
+				return fmt.Errorf("Error parsing website array, %s", err)
+			}
+		}
+		delete(tbl.Fields, "websites")
+	}
+
+	// Parse rest
 	for name, val := range tbl.Fields {
 		subTable, ok := val.(*ast.Table)
 		if !ok {
@@ -87,6 +118,16 @@ func (c *Config) LoadConfig(path string) error {
 			return fmt.Errorf("Error parsing %s, %s", name, err)
 		}
 	}
+	return nil
+}
+
+func (c *Config) addWebsite(table *ast.Table) error {
+	website := model.WebSite{}
+	if err := toml.UnmarshalTable(table, &website); err != nil {
+		return err
+	}
+
+	c.WebSites = append(c.WebSites, website)
 	return nil
 }
 

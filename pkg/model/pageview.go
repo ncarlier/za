@@ -13,7 +13,7 @@ type PageView struct {
 	UserAgent        string
 	DocumentHostName string
 	DocumentPath     string
-	DocumentReferrer string
+	DocumentReferer  string
 	IsNewVisitor     bool
 	IsNewSession     bool
 	Timestamp        time.Time

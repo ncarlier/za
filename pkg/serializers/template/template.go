@@ -9,7 +9,7 @@ import (
 	"github.com/ncarlier/trackr/pkg/model"
 )
 
-const defaultDataFormatTemplate = "{{.ClientIP}} {{.HostName}} - [{{.FormattedTS}}] \"GET {{.DocumentPath}} {{.Protocol}}\" 200 1 \"{{.DocumentReferrer}}\" \"{{.UserAgent}}\""
+const defaultDataFormatTemplate = "{{.ClientIP}} {{.HostName}} - [{{.FormattedTS}}] \"GET {{.DocumentPath}} {{.Protocol}}\" 200 1 \"{{.DocumentReferer}}\" \"{{.UserAgent}}\""
 
 var tplCounter int32
 
