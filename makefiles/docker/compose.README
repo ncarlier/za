@@ -1,0 +1,57 @@
+<!-- vi: set ft=markdown :-->
+
+# Docker Compose
+
+## Tasks
+
+- `compose-build`: Build Docker images
+- `compose-up`: Deploy Docker stack
+- `compose-down`: Un-deploy Docker stack
+- `compose-wait`: Wait for the health check of the `${service}`
+- `compose-config`: Run the `config-${service}` task
+- `compose-stop`: Stop the `${service}`
+- `compose-start`: Start the `${service}`
+- `compose-restart`: Restart the `${service}`
+- `compose-logs`: Get service(s) logs
+- `compose-ps`: Get services status
+
+## Configuration
+
+- `COMPOSE_FILES`: Docker compose configuration files (-f a.yml -f b.yml ...)
+
+## Usage
+
+Create a `Makefile`:
+
+```makefile
+# Docker compose configuration files
+COMPOSE_FILES?=-f docker-compose.yml
+
+# Include common Make tasks
+root_dir:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+makefiles:=$(root_dir)/makefiles
+include $(makefiles)/help.Makefile
+include $(makefiles)/docker/compose.Makefile
+
+## Apply configuration
+apply: compose-up compose-logs
+.PHONY : apply
+
+## Un-apply configuration
+unapply: compose-down
+.PHONY : unapply
+
+## Get stack status
+status: compose-ps
+.PHONY : status
+
+```
+
+Play:
+
+```bash
+$ make apply
+$ make status
+$ make unapply
+```
+---

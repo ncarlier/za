@@ -21,3 +21,9 @@ tracking_id = "UA-XXXX-Y"
   path = "/metrics"
   ## Expiration interval for each metric. 0 == no expiration
   # expiration_interval = "60s"
+
+[[outputs.loki]]
+  ## Loki URL
+  url = "http://loki:3100"
+  ## Timeout
+  timeout = "2s"

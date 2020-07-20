@@ -36,6 +36,7 @@ all: build
 root_dir:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 makefiles:=$(root_dir)/makefiles
 include $(makefiles)/help.Makefile
+include $(makefiles)/docker/compose.Makefile
 
 ## Clean built files
 clean:
@@ -97,3 +98,11 @@ distribution: CHANGELOG.md
 	GOARCH=arm make build archive
 	GOOS=darwin make build archive
 .PHONY: distribution
+
+## Deploy Docker stack
+deploy: compose-up 
+.PHONY: deploy
+
+## Un-deploy Docker stack
+undeploy: compose-down
+.PHONY: undeploy

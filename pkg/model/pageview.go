@@ -1,6 +1,7 @@
 package model
 
 import (
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,4 +29,14 @@ func (p PageView) FormattedTS() string {
 func (p PageView) HostName() string {
 	result := strings.TrimPrefix(p.DocumentHostName, "http://")
 	return strings.TrimPrefix(result, "https://")
+}
+
+// Labels returns page view labels
+func (p PageView) Labels() Labels {
+	return Labels{
+		"tid":          p.TrackingID,
+		"hostname":     p.DocumentHostName,
+		"path":         p.DocumentPath,
+		"isNewVisitor": strconv.FormatBool(p.IsNewVisitor),
+	}
 }

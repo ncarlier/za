@@ -1,0 +1,46 @@
+version: "3"
+
+services:
+  #######################################
+  # TSDB: Prometheus
+  #######################################
+  prom:
+    image: "prom/prometheus"
+    restart: always
+    ports:
+      - "${PROM_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  #######################################
+  # Logging: Loki
+  #######################################
+  loki:
+    image: "grafana/loki"
+    restart: always
+    ports:
+      - "${LOKI_PORT:-3100}:3100"
+
+  #######################################
+  # Dashboarding: Grafana
+  #######################################
+  grafana:
+    image: "grafana/grafana:latest"
+    restart: always
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+
+  #######################################
+  # Trackr
+  #######################################
+  trackr:
+    image: "ncarlier/trackr"
+    restart: always
+    environment:
+      - TRACKR_DEBUG=true
+      - TRACKR_CONFIG_FILE=/etc/trackr.toml
+    ports:
+      - "${TRACKR_PORT:-8080}:8080"
+    volumes:
+      - ./trackr.toml:/etc/trackr.toml
+
