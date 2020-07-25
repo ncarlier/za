@@ -84,6 +84,19 @@ image:
 CHANGELOG.md:
 	standard-changelog --first-release
 
+var/dbip-country.mmdb:
+	echo ">>> Downloading country GeoIP database..."
+	wget -O - https://download.db-ip.com/free/dbip-country-lite-$(shell date '+%Y-%m').mmdb.gz | gunzip -c > var/dbip-country-lite.mmdb
+
+var/dbip-city.mmdb:
+	echo ">>> Downloading city GeoIP database..."
+	wget -O - https://download.db-ip.com/free/dbip-city-lite-$(shell date '+%Y-%m').mmdb.gz | gunzip -c > var/dbip-city-lite.mmdb
+
+
+## Download Geo IP databases
+geoip-db: var/dbip-city.mmdb var/dbip-country.mmdb
+.PHONY: geoip-db
+
 ## Create archive
 archive: release/$(EXECUTABLE)
 	echo ">>> Creating release/$(ARCHIVE) archive..."

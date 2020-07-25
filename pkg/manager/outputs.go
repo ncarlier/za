@@ -33,7 +33,7 @@ func NewOutputsManager(conf *config.Config) (*Outputs, error) {
 	for idx, output := range conf.Outputs {
 		out := *output
 		if err := out.Connect(); err != nil {
-			logger.Error.Println("unable to connect to the output writer: %v", err)
+			logger.Error.Printf("unable to connect to the output writer: %v", err)
 		} else {
 			manager.outputs[idx] = out
 		}

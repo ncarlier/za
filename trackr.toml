@@ -1,6 +1,7 @@
 # Track configuration
 
 [global]
+geo_ip_database = "./var/dbip-city-lite.mmdb"
 batch_size = 10
 batch_interval = "10s"
 

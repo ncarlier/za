@@ -23,6 +23,7 @@ type Config struct {
 
 // GlobalConfig is the global section fo the configuration
 type GlobalConfig struct {
+	GeoIPDatabase string `toml:"geo_ip_database"`
 	BatchSize     int
 	BatchInterval Duration
 }

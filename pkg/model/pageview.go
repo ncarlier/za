@@ -10,6 +10,7 @@ import (
 type PageView struct {
 	TrackingID       string
 	ClientIP         string
+	CountryCode      string
 	Protocol         string
 	UserAgent        string
 	DocumentHostName string

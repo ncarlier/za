@@ -2,12 +2,14 @@ package api
 
 import (
 	"encoding/base64"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 
 	"github.com/ncarlier/trackr/pkg/config"
+	"github.com/ncarlier/trackr/pkg/geoip"
 	"github.com/ncarlier/trackr/pkg/helper"
 	"github.com/ncarlier/trackr/pkg/logger"
 	"github.com/ncarlier/trackr/pkg/manager"
@@ -19,6 +21,10 @@ func collectHandler(conf *config.Config) http.Handler {
 	if err != nil {
 		logger.Error.Fatalf("unable to initialize outputs manager: %s", err)
 	}
+	geoIPDatabase, err := geoip.New(conf.Global.GeoIPDatabase)
+	if err != nil {
+		logger.Error.Fatalf("unable to load geo IP database: %s", err)
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !isAllowedToCollect(r) {
 			w.WriteHeader(http.StatusNoContent)
@@ -26,18 +32,15 @@ func collectHandler(conf *config.Config) http.Handler {
 		}
 		q := r.URL.Query()
 
-		trackinID := q.Get("tid")
-		if !conf.ValidateTrackingID(r.Referer(), trackinID) {
-			logger.Debug.Printf("tracking ID %s doesn't match website origin: %s", trackinID, r.Referer())
+		trackingID := q.Get("tid")
+		if !conf.ValidateTrackingID(r.Referer(), trackingID) {
+			logger.Debug.Printf("tracking ID %s doesn't match website origin: %s", trackingID, r.Referer())
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 
-		// TODO collect more data:
-		// - country code from request IP
-		// - device and browser from User-Agent
 		pageview := model.PageView{
-			TrackingID:       trackinID,
+			TrackingID:       trackingID,
 			ClientIP:         parseClientIP(r),
 			Protocol:         r.Proto,
 			UserAgent:        r.UserAgent(),
@@ -47,6 +50,15 @@ func collectHandler(conf *config.Config) http.Handler {
 			IsNewVisitor:     q.Get("nv") == "1",
 			IsNewSession:     q.Get("ns") == "1",
 			Timestamp:        time.Now(),
+		}
+
+		if geoIPDatabase != nil {
+			if ip := net.ParseIP(pageview.ClientIP); ip != nil {
+				pageview.CountryCode, err = geoIPDatabase.LookupCountry(ip)
+				if err != nil {
+					logger.Warning.Printf("unable to retrieve IP country code: %v", err)
+				}
+			}
 		}
 
 		// Send page view to outputs manager
