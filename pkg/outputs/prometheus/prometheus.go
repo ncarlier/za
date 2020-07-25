@@ -28,7 +28,7 @@ type Client struct {
 
 var sampleConfig = `
   ## Address to listen on
-  listen = ":9273"
+  listen = ":9213"
   ## Path to publish the metrics on.
   # path = "/metrics"
 `
