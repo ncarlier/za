@@ -114,8 +114,8 @@ func (p *Client) Write(views []*model.PageView) error {
 		}).Inc()
 		if view.DocumentReferer != "" {
 			p.referersCounter.With(prometheus.Labels{
-				"tid":      view.TrackingID,
-				"referrer": view.DocumentReferer,
+				"tid":     view.TrackingID,
+				"referer": view.DocumentReferer,
 			}).Inc()
 		}
 	}
