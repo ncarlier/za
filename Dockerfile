@@ -48,7 +48,7 @@ RUN ln -s /usr/local/share/$ARTIFACT/$ARTIFACT /usr/local/bin/$ARTIFACT
 # Define working directory
 WORKDIR /usr/local/share/$ARTIFACT
 
-EXPOSE 8080 9090
+EXPOSE 8080 9213
 
 # Define command
 CMD trackr

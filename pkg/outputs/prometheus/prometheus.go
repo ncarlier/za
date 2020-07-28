@@ -28,7 +28,7 @@ type Client struct {
 
 var sampleConfig = `
   ## Address to listen on
-  listen = ":9273"
+  listen = ":9213"
   ## Path to publish the metrics on.
   # path = "/metrics"
 `
@@ -114,8 +114,8 @@ func (p *Client) Write(views []*model.PageView) error {
 		}).Inc()
 		if view.DocumentReferer != "" {
 			p.referersCounter.With(prometheus.Labels{
-				"tid":      view.TrackingID,
-				"referrer": view.DocumentReferer,
+				"tid":     view.TrackingID,
+				"referer": view.DocumentReferer,
 			}).Inc()
 		}
 	}
