@@ -41,7 +41,7 @@ func collectHandler(conf *config.Config) http.Handler {
 
 		pageview := model.PageView{
 			TrackingID:       trackingID,
-			ClientIP:         parseClientIP(r),
+			ClientIP:         helper.ParseClientIP(r),
 			Protocol:         r.Proto,
 			UserAgent:        r.UserAgent(),
 			DocumentHostName: parseHostname(q.Get("dh")),
@@ -118,12 +118,4 @@ func parseHostname(r string) string {
 		return ""
 	}
 	return u.Scheme + "://" + u.Host
-}
-
-func parseClientIP(r *http.Request) string {
-	clientIP := r.RemoteAddr
-	if colon := strings.LastIndex(clientIP, ":"); colon != -1 {
-		clientIP = clientIP[:colon]
-	}
-	return clientIP
 }
