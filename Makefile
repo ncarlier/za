@@ -86,15 +86,11 @@ CHANGELOG.md:
 
 var/dbip-country.mmdb:
 	echo ">>> Downloading country GeoIP database..."
+	mkdir -p var
 	wget -O - https://download.db-ip.com/free/dbip-country-lite-$(shell date '+%Y-%m').mmdb.gz | gunzip -c > var/dbip-country-lite.mmdb
 
-var/dbip-city.mmdb:
-	echo ">>> Downloading city GeoIP database..."
-	wget -O - https://download.db-ip.com/free/dbip-city-lite-$(shell date '+%Y-%m').mmdb.gz | gunzip -c > var/dbip-city-lite.mmdb
-
-
 ## Download Geo IP databases
-geoip-db: var/dbip-city.mmdb var/dbip-country.mmdb
+geoip-db: var/dbip-country.mmdb
 .PHONY: geoip-db
 
 ## Create archive
