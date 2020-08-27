@@ -13,6 +13,8 @@ type PageView struct {
 	CountryCode      string
 	Protocol         string
 	UserAgent        string
+	Browser          string
+	OS               string
 	DocumentHostName string
 	DocumentPath     string
 	DocumentReferer  string

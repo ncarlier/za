@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mssola/user_agent"
 	"github.com/ncarlier/trackr/pkg/config"
 	"github.com/ncarlier/trackr/pkg/geoip"
 	"github.com/ncarlier/trackr/pkg/helper"
@@ -30,6 +31,17 @@ func collectHandler(conf *config.Config) http.Handler {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
+
+		// Decode User-Agent
+		ua := user_agent.New(r.UserAgent())
+
+		// Don't track Bot requests
+		if ua.Bot() {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		browser, _ := ua.Browser()
 		q := r.URL.Query()
 
 		trackingID := q.Get("tid")
@@ -43,7 +55,9 @@ func collectHandler(conf *config.Config) http.Handler {
 			TrackingID:       trackingID,
 			ClientIP:         helper.ParseClientIP(r),
 			Protocol:         r.Proto,
-			UserAgent:        r.UserAgent(),
+			UserAgent:        ua.UA(),
+			Browser:          browser,
+			OS:               ua.OS(),
 			DocumentHostName: parseHostname(q.Get("dh")),
 			DocumentPath:     parsePathname(q.Get("dp")),
 			DocumentReferer:  q.Get("dr"),
@@ -88,11 +102,6 @@ func isAllowedToCollect(r *http.Request) bool {
 
 	// Don't track prerendered pages
 	if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" {
-		return false
-	}
-
-	// Don't track Bot requests
-	if helper.IsBotUserAgent(r.UserAgent()) {
 		return false
 	}
 
