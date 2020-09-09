@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/influxdata/toml"
 	"github.com/influxdata/toml/ast"
@@ -17,34 +16,29 @@ import (
 // Config is the root of the configuration
 type Config struct {
 	Global   GlobalConfig
-	WebSites []model.WebSite
-	Outputs  []*outputs.Output
+	Trackers []model.Tracker
+	Outputs  []model.Output
 }
 
 // GlobalConfig is the global section fo the configuration
 type GlobalConfig struct {
 	GeoIPDatabase string `toml:"geo_ip_database"`
-	BatchSize     int
-	BatchInterval Duration
 }
 
 // NewConfig create new configuration
 func NewConfig() *Config {
 	c := &Config{
-		Global: GlobalConfig{
-			BatchSize:     10,
-			BatchInterval: Duration{Duration: 10 * time.Second},
-		},
-		WebSites: make([]model.WebSite, 0),
-		Outputs:  make([]*outputs.Output, 0),
+		Global:   GlobalConfig{},
+		Trackers: make([]model.Tracker, 0),
+		Outputs:  make([]model.Output, 0),
 	}
 	return c
 }
 
 // ValidateTrackingID validate that origin matches with the tracking ID
 func (c *Config) ValidateTrackingID(origin, trackingID string) bool {
-	for _, website := range c.WebSites {
-		if strings.HasPrefix(origin, website.Origin) && website.TrackingID == trackingID {
+	for _, tracker := range c.Trackers {
+		if strings.HasPrefix(origin, tracker.Origin) && tracker.TrackingID == trackingID {
 			return true
 		}
 	}
@@ -78,18 +72,18 @@ func (c *Config) LoadConfig(path string) error {
 		}
 	}
 
-	// Parse websites table:
-	if val, ok := tbl.Fields["websites"]; ok {
+	// Parse trackers table:
+	if val, ok := tbl.Fields["trackers"]; ok {
 		subTable, ok := val.([]*ast.Table)
 		if !ok {
-			return fmt.Errorf("invalid configuration, error parsing websites table")
+			return fmt.Errorf("invalid configuration, error parsing trackers table")
 		}
-		for _, websiteTable := range subTable {
-			if err = c.addWebsite(websiteTable); err != nil {
-				return fmt.Errorf("Error parsing website array, %s", err)
+		for _, trackerTable := range subTable {
+			if err = c.addTracker(trackerTable); err != nil {
+				return fmt.Errorf("Error parsing trackers array, %s", err)
 			}
 		}
-		delete(tbl.Fields, "websites")
+		delete(tbl.Fields, "trackers")
 	}
 
 	// Parse rest
@@ -122,13 +116,13 @@ func (c *Config) LoadConfig(path string) error {
 	return nil
 }
 
-func (c *Config) addWebsite(table *ast.Table) error {
-	website := model.WebSite{}
-	if err := toml.UnmarshalTable(table, &website); err != nil {
+func (c *Config) addTracker(table *ast.Table) error {
+	tracker := model.Tracker{}
+	if err := toml.UnmarshalTable(table, &tracker); err != nil {
 		return err
 	}
 
-	c.WebSites = append(c.WebSites, website)
+	c.Trackers = append(c.Trackers, tracker)
 	return nil
 }
 
@@ -154,7 +148,7 @@ func (c *Config) addOutput(name string, table *ast.Table) error {
 		return err
 	}
 
-	c.Outputs = append(c.Outputs, &output)
+	c.Outputs = append(c.Outputs, output)
 	return nil
 }
 

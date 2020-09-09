@@ -13,12 +13,12 @@ import (
 	"github.com/ncarlier/trackr/pkg/geoip"
 	"github.com/ncarlier/trackr/pkg/helper"
 	"github.com/ncarlier/trackr/pkg/logger"
-	"github.com/ncarlier/trackr/pkg/manager"
 	"github.com/ncarlier/trackr/pkg/model"
+	"github.com/ncarlier/trackr/pkg/outputs"
 )
 
 func collectHandler(conf *config.Config) http.Handler {
-	outputs, err := manager.NewOutputsManager(conf)
+	outputs, err := outputs.NewOutputsManager(conf.Outputs)
 	if err != nil {
 		logger.Error.Fatalf("unable to initialize outputs manager: %s", err)
 	}

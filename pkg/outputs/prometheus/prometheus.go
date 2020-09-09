@@ -104,27 +104,26 @@ func (p *Client) Description() string {
 	return "Prometheus client"
 }
 
-func (p *Client) Write(views []*model.PageView) error {
-	for _, view := range views {
-		p.pageviewsCounter.With(prometheus.Labels{
-			"tid":          view.TrackingID,
-			"hostname":     view.DocumentHostName,
-			"path":         view.DocumentPath,
-			"isNewVisitor": strconv.FormatBool(view.IsNewVisitor),
+// Send page view to the Output
+func (p *Client) Send(view model.PageView) error {
+	p.pageviewsCounter.With(prometheus.Labels{
+		"tid":          view.TrackingID,
+		"hostname":     view.DocumentHostName,
+		"path":         view.DocumentPath,
+		"isNewVisitor": strconv.FormatBool(view.IsNewVisitor),
+	}).Inc()
+	if view.DocumentReferer != "" {
+		p.referersCounter.With(prometheus.Labels{
+			"tid":     view.TrackingID,
+			"referer": view.DocumentReferer,
 		}).Inc()
-		if view.DocumentReferer != "" {
-			p.referersCounter.With(prometheus.Labels{
-				"tid":     view.TrackingID,
-				"referer": view.DocumentReferer,
-			}).Inc()
-		}
 	}
 
 	return nil
 }
 
 func init() {
-	outputs.Add("prometheus", func() outputs.Output {
+	outputs.Add("prometheus", func() model.Output {
 		return &Client{
 			Listen: ":9213",
 			Path:   "/metrics",

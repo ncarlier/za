@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 
-	"github.com/ncarlier/trackr/pkg/logger"
 	"github.com/ncarlier/trackr/pkg/model"
 	"github.com/ncarlier/trackr/pkg/outputs"
 	"github.com/ncarlier/trackr/pkg/serializers"
@@ -82,26 +81,22 @@ func (f *File) Description() string {
 	return "Send page view to file(s)"
 }
 
-func (f *File) Write(views []*model.PageView) error {
-	var writeErr error = nil
-
-	for _, view := range views {
-		b, err := f.serializer.Serialize(*view)
-		if err != nil {
-			logger.Debug.Printf("could not serialize page view: %v", err)
-		}
-
-		_, err = f.writer.Write(b)
-		if err != nil {
-			writeErr = fmt.Errorf("E! [outputs.file] failed to write message: %v", err)
-		}
+// Send page view to the Output
+func (f *File) Send(view model.PageView) error {
+	b, err := f.serializer.Serialize(view)
+	if err != nil {
+		return fmt.Errorf("unable to serialize page view: %v", err)
 	}
 
-	return writeErr
+	if _, err = f.writer.Write(b); err != nil {
+		return fmt.Errorf("unable to write page view to file output: %v", err)
+	}
+
+	return nil
 }
 
 func init() {
-	outputs.Add("file", func() outputs.Output {
+	outputs.Add("file", func() model.Output {
 		return &File{}
 	})
 }

@@ -1,11 +1,9 @@
-# Track configuration
+# Trackr configuration
 
 [global]
 geo_ip_database = "./var/dbip-country-lite.mmdb"
-batch_size = 10
-batch_interval = "10s"
 
-[[websites]]
+[[trackers]]
 origin = "http://localhost:8000"
 tracking_id = "UA-XXXX-Y"
 
@@ -28,3 +26,7 @@ tracking_id = "UA-XXXX-Y"
   url = "http://loki:3100"
   ## Timeout
   timeout = "2s"
+  ## Batch size
+  batch_size = 10
+  ## Batch interval
+  batch_interval = "10s"

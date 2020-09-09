@@ -1,8 +1,4 @@
-package outputs
-
-import (
-	"github.com/ncarlier/trackr/pkg/model"
-)
+package model
 
 // Output writer
 type Output interface {
@@ -10,6 +6,6 @@ type Output interface {
 	Connect() error
 	// Close any connections to the Output
 	Close() error
-	// Write page views to the Output
-	Write(views []*model.PageView) error
+	// Send page view to the Output
+	Send(view PageView) error
 }
