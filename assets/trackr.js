@@ -118,6 +118,8 @@
     if (!dp) {
       dp = '/';
     }
+    // get user language
+    const ul = navigator.language;
     // get document host name
     const dh = loc.protocol + "//" + loc.hostname;
     // get document referrer
@@ -132,6 +134,7 @@
       dp: dp,
       dh: dh,
       dr: dr,
+      ul: ul,
       nv: isNewVisitor() ? 1 : 0,
       ns: isNewSession() ? 1 : 0,
       z: Date.now(), // Cache buster

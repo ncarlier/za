@@ -51,6 +51,7 @@ func collectHandler(conf *config.Config) http.Handler {
 			return
 		}
 
+		// TODO extract Browser, Operating System and Device from user-agent
 		pageview := model.PageView{
 			TrackingID:       trackingID,
 			ClientIP:         helper.ParseClientIP(r),
@@ -58,6 +59,7 @@ func collectHandler(conf *config.Config) http.Handler {
 			UserAgent:        ua.UA(),
 			Browser:          browser,
 			OS:               ua.OS(),
+			UserLanguage:     q.Get("ul"),
 			DocumentHostName: parseHostname(q.Get("dh")),
 			DocumentPath:     parsePathname(q.Get("dp")),
 			DocumentReferer:  q.Get("dr"),

@@ -15,6 +15,7 @@ type PageView struct {
 	UserAgent        string
 	Browser          string
 	OS               string
+	UserLanguage     string
 	DocumentHostName string
 	DocumentPath     string
 	DocumentReferer  string
@@ -41,5 +42,6 @@ func (p PageView) Labels() Labels {
 		"hostname":     p.DocumentHostName,
 		"path":         p.DocumentPath,
 		"isNewVisitor": strconv.FormatBool(p.IsNewVisitor),
+		"country":      p.CountryCode,
 	}
 }
