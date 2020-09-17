@@ -23,12 +23,15 @@ type Config struct {
 // GlobalConfig is the global section fo the configuration
 type GlobalConfig struct {
 	GeoIPDatabase string `toml:"geo_ip_database"`
+	Tags          map[string]string
 }
 
 // NewConfig create new configuration
 func NewConfig() *Config {
 	c := &Config{
-		Global:   GlobalConfig{},
+		Global: GlobalConfig{
+			Tags: make(map[string]string),
+		},
 		Trackers: make([]model.Tracker, 0),
 		Outputs:  make([]model.Output, 0),
 	}
@@ -56,6 +59,7 @@ func (c *Config) LoadConfig(path string) error {
 	if err != nil {
 		return err
 	}
+	data = []byte(os.ExpandEnv(string(data)))
 	tbl, err := toml.Parse(data)
 	if err != nil {
 		return err

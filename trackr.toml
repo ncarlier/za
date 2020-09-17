@@ -3,6 +3,12 @@
 [global]
 geo_ip_database = "./var/dbip-country-lite.mmdb"
 
+# Global tags can be specified here in key="value" format.
+[global.tags]
+  dc = "eu-west-1" # will tag all metrics with dc=us-east-1
+  ## Environment variables can be used as tags, and throughout the config file
+  user = "$USER"
+
 [[trackers]]
 origin = "http://localhost:8000"
 tracking_id = "UA-XXXX-Y"
@@ -11,7 +17,8 @@ tracking_id = "UA-XXXX-Y"
   ## Files to write to, "stdout" is a specially handled file.
   files = ["stdout"]
   ## Data format to output.
-  data_format = "template"
+  #data_format = "template"
+  data_format = "json"
 
 [[outputs.prometheus]]
   ## Address to listen on

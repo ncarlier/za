@@ -21,6 +21,7 @@ type PageView struct {
 	DocumentReferer  string
 	IsNewVisitor     bool
 	IsNewSession     bool
+	Tags             map[string]string
 	Timestamp        time.Time
 }
 
@@ -37,11 +38,17 @@ func (p PageView) HostName() string {
 
 // Labels returns page view labels
 func (p PageView) Labels() Labels {
-	return Labels{
+	labels := Labels{
 		"tid":          p.TrackingID,
 		"hostname":     p.DocumentHostName,
 		"path":         p.DocumentPath,
 		"isNewVisitor": strconv.FormatBool(p.IsNewVisitor),
 		"country":      p.CountryCode,
 	}
+	// Add tags to labels
+	for k, v := range p.Tags {
+		labels[k] = v
+	}
+
+	return labels
 }
