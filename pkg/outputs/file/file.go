@@ -81,8 +81,8 @@ func (f *File) Description() string {
 	return "Send page view to file(s)"
 }
 
-// Send page view to the Output
-func (f *File) Send(view model.PageView) error {
+// SendPageView page view to the Output
+func (f *File) SendPageView(view model.PageView) error {
 	b, err := f.serializer.Serialize(view)
 	if err != nil {
 		return fmt.Errorf("unable to serialize page view: %v", err)

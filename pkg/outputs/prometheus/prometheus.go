@@ -20,6 +20,7 @@ type Client struct {
 	Listen string `toml:"listen"`
 	Path   string `toml:"path"`
 
+	sync.Mutex
 	server           *http.Server
 	pageviewsCounter *prometheus.CounterVec
 	referersCounter  *prometheus.CounterVec
@@ -104,8 +105,11 @@ func (p *Client) Description() string {
 	return "Prometheus client"
 }
 
-// Send page view to the Output
-func (p *Client) Send(view model.PageView) error {
+// SendPageView page view to the Output
+func (p *Client) SendPageView(view model.PageView) error {
+	p.Lock()
+	defer p.Unlock()
+
 	p.pageviewsCounter.With(prometheus.Labels{
 		"tid":          view.TrackingID,
 		"hostname":     view.DocumentHostName,

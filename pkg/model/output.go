@@ -6,6 +6,6 @@ type Output interface {
 	Connect() error
 	// Close any connections to the Output
 	Close() error
-	// Send page view to the Output
-	Send(view PageView) error
+	// SendPageView page view to the Output
+	SendPageView(view PageView) error
 }

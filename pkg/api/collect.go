@@ -26,7 +26,15 @@ func collectHandler(conf *config.Config) http.Handler {
 		logger.Error.Fatalf("unable to load geo IP database: %s", err)
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !isAllowedToCollect(r) {
+		// Respect Do Not Track HTTP header
+		if r.Header.Get("DNT") == "1" {
+			// Write GIF beacon as response
+			helper.WriteBeacon(w, "N")
+			return
+		}
+
+		// Don't track prerendered pages
+		if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
@@ -40,13 +48,19 @@ func collectHandler(conf *config.Config) http.Handler {
 			return
 		}
 
+		// Validate HTTP request
+		if !isValidRequest(r) {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
 		browser, _ := ua.Browser()
 		q := r.URL.Query()
 
 		trackingID := q.Get("tid")
 		if !conf.ValidateTrackingID(r.Referer(), trackingID) {
 			logger.Debug.Printf("tracking ID %s doesn't match website origin: %s", trackingID, r.Referer())
-			w.WriteHeader(http.StatusNoContent)
+			helper.WriteBeacon(w, "N")
 			return
 		}
 
@@ -77,37 +91,19 @@ func collectHandler(conf *config.Config) http.Handler {
 		}
 
 		// Send page view to outputs manager
-		outputs.Send(pageview)
-
-		// Set tracking information header
-		w.Header().Set("Tk", "N")
+		outputs.SendPageView(pageview)
 
 		// Write GIF beacon as response
-		helper.WriteBeacon(w)
+		helper.WriteBeacon(w, "P")
 	})
 }
 
-func isAllowedToCollect(r *http.Request) bool {
-	// Apply Do Not Track HTTP header
-	if r.Header.Get("DNT") == "1" {
-		return false
-	}
-
-	// Don't track prerendered pages
-	if r.Header.Get("X-Moz") == "prefetch" || r.Header.Get("X-Purpose") == "preview" {
-		return false
-	}
-
+func isValidRequest(r *http.Request) bool {
 	// Validate HTTP request
-	requiredQueryVars := []string{"tid", "t", "dh", "dp"}
 	q := r.URL.Query()
-	for _, k := range requiredQueryVars {
-		if q.Get(k) == "" {
-			return false
-		}
-	}
-
-	return true
+	tid := q.Get("tid")
+	_, validType := model.EventTypes[q.Get("t")]
+	return tid != "" && validType
 }
 
 func parsePathname(p string) string {

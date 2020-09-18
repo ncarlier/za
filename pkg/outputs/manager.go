@@ -29,10 +29,10 @@ func NewOutputsManager(outputs []model.Output) (*Manager, error) {
 	return &manager, nil
 }
 
-// Send page view to all outputs
-func (m *Manager) Send(view model.PageView) {
+// SendPageView page view to all outputs
+func (m *Manager) SendPageView(view model.PageView) {
 	for _, out := range m.outputs {
-		if err := out.Send(view); err != nil {
+		if err := out.SendPageView(view); err != nil {
 			logger.Error.Println("unable to send page view to the output:", err)
 		}
 	}

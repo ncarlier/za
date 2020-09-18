@@ -6,7 +6,9 @@ import (
 )
 
 // WriteBeacon write GIF beacon in HTTP response
-func WriteBeacon(w http.ResponseWriter) {
+func WriteBeacon(w http.ResponseWriter, trackingStatus string) {
+	// Set tracking information header
+	w.Header().Set("Tk", trackingStatus)
 	// Set cache policy headers
 	w.Header().Set("Expires", "Mon, 01 Jan 1990 00:00:00 GMT")
 	w.Header().Set("Cache-Control", "no-store")

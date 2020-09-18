@@ -85,8 +85,8 @@ func (l *Loki) Description() string {
 	return "Loki client"
 }
 
-// Send page view to the Output
-func (l *Loki) Send(view model.PageView) error {
+// SendPageView page view to the Output
+func (l *Loki) SendPageView(view model.PageView) error {
 	l.entries <- view
 	return nil
 }

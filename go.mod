@@ -3,6 +3,7 @@ module github.com/ncarlier/trackr
 go 1.14
 
 require (
+	github.com/NYTimes/gziphandler v1.1.1
 	github.com/gogo/protobuf v1.1.1
 	github.com/golang/snappy v0.0.1
 	github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf

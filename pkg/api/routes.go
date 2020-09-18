@@ -28,11 +28,37 @@ func route(path string, handler HandlerFunc, middlewares ...middleware.Middlewar
 // Routes is a list of Route
 type Routes []Route
 
-var routes = Routes{
-	route("/", infoHandler, middleware.Methods("GET", "POST")),
-	route("/collect", collectHandler, middleware.Methods("GET", "POST")),
-	route("/trackr.js", fileHandler("trackr.js"), middleware.Methods("GET")),
-	route("/trackr.min.js", fileHandler("trackr.min.js"), middleware.Methods("GET")),
-	route("/healthz", healthzHandler, middleware.Methods("GET")),
-	route("/varz", varzHandler, middleware.Methods("GET")),
+func routes(conf *config.Config) Routes {
+	return Routes{
+		route(
+			"/",
+			infoHandler,
+			middleware.Methods("GET", "POST"),
+		),
+		route(
+			"/collect",
+			collectHandler,
+			middleware.Methods("GET", "POST"),
+		),
+		route(
+			"/trackr.js",
+			fileHandler("trackr.js"),
+			middleware.Methods("GET"),
+		),
+		route(
+			"/trackr.min.js",
+			fileHandler("trackr.min.js"),
+			middleware.Methods("GET"),
+		),
+		route(
+			"/healthz",
+			healthzHandler,
+			middleware.Methods("GET"),
+		),
+		route(
+			"/varz",
+			varzHandler,
+			middleware.Methods("GET"),
+		),
+	}
 }
