@@ -19,6 +19,15 @@
   })(document, window, 'script', 'http://localhost:8080/trackr.js', 'trackr');
   trackr('create', 'UA-XXXX-Y', 'auto');
   trackr('send', 'pageview');
+  trackr('send', 'error');
+</script>
+<script>
+window.addEventListener('load', function () {
+  setTimeout(() => {
+    trackr('send', 'event', {"foo": "bar"});
+    throw "This is a expected error!";
+  }, 1000);
+});
 </script>
 </body>
 </html>

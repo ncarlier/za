@@ -12,6 +12,8 @@
   };
   const trackers = {
     "pageview": trackPageView,
+    "error": trackError,
+    "event": trackEvent,
   };
 
   function create(tid, domain) {
@@ -20,6 +22,10 @@
   }
 
   function send() {
+    // abort when "Do Not Track" is set
+    if ('doNotTrack' in navigator && navigator.doNotTrack === "1") {
+      return;
+    }
     var args = [].slice.call(arguments);
     var c = args.shift();
     trackers[c].apply(this, args);
@@ -89,11 +95,59 @@
     return loc;
   }
 
+  function writeBeaconImg(q) {
+    // create image tracker
+    let img = document.createElement('img');
+    img.setAttribute('alt', '');
+    img.setAttribute('aria-hidden', 'true');
+    img.src = getTrackerUrl() + toQueryString(q);
+    img.addEventListener('load', function() {
+      // remove image tracker from DOM
+      document.body.removeChild(img);
+    });
+    
+    // ensure to remove image tracker form DOM
+    window.setTimeout(() => { 
+      if (!img.parentNode) {
+        return;
+      }
+      img.src = ''; 
+      document.body.removeChild(img);
+    }, 1000);
+    // add image tracker to the DOM
+    document.body.appendChild(img);
+  }
+
+  let _actualOnErrorHandler = null;
+  function trackError() {
+    _actualOnErrorHandler = window.onerror;
+    window.onerror = function(msg, url, line, column, error) {
+      const q = {
+        tid: config.tid,
+        t: 'error',
+        err: msg,
+        d: JSON.stringify({line, column, error}),
+        z: Date.now(), // Cache buster
+      };
+      writeBeaconImg(q);
+      if (_actualOnErrorHandler) {
+        return _actualOnErrorHandler.apply(this, arguments);
+      }
+      return false;
+    };
+  }
+  
+  function trackEvent(payload) {
+    const q = {
+      tid: config.tid,
+      t: 'event',
+      d: JSON.stringify(payload),
+      z: Date.now(), // Cache buster
+    };
+    writeBeaconImg(q);
+  }
+
   function trackPageView() { 
-    // abort when "Do Not Track" is set
-    if ('doNotTrack' in navigator && navigator.doNotTrack === "1") {
-      return;
-    }
     // abort when page is in pre-rendered state
     if ('visibilityState' in document && document.visibilityState === 'prerender') {
       return;
@@ -130,7 +184,7 @@
     // build the tracking query
     const q = {
       tid: config.tid,
-      t: 'pageview', // TODO: 'pageview', 'screenview', 'event', 'transaction', 'item', 'social', 'exception', 'timing'
+      t: 'pageview',
       dp: dp,
       dh: dh,
       dr: dr,
@@ -139,26 +193,7 @@
       ns: isNewSession() ? 1 : 0,
       z: Date.now(), // Cache buster
     };
-    // create image tracker
-    let img = document.createElement('img');
-    img.setAttribute('alt', '');
-    img.setAttribute('aria-hidden', 'true');
-    img.src = getTrackerUrl() + toQueryString(q);
-    img.addEventListener('load', function() {
-      // remove image tracker from DOM
-      document.body.removeChild(img);
-    });
-    
-    // ensure to remove image tracker form DOM
-    window.setTimeout(() => { 
-      if (!img.parentNode) {
-        return;
-      }
-      img.src = ''; 
-      document.body.removeChild(img);
-    }, 1000);
-    // add image tracker to the DOM
-    document.body.appendChild(img);  
+    writeBeaconImg(q);
   }
 
   // define Trackr global function
