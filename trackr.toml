@@ -20,20 +20,21 @@ tracking_id = "UA-XXXX-Y"
   #data_format = "template"
   data_format = "json"
 
-[[outputs.prometheus]]
-  ## Address to listen on
-  listen = ":9213"
-  ## Path to publish the metrics on.
-  path = "/metrics"
-  ## Expiration interval for each metric. 0 == no expiration
-  # expiration_interval = "60s"
+# [[outputs.prometheus]]
+#   ## Address to listen on
+#   listen = ":9213"
+#   ## Path to publish the metrics on.
+#   path = "/metrics"
+#   ## Expiration interval for each metric. 0 == no expiration
+#   # expiration_interval = "60s"
 
 [[outputs.loki]]
   ## Loki URL
-  url = "http://loki:3100"
+  url = "http://localhost:3100"
   ## Timeout
   timeout = "2s"
   ## Batch size
   batch_size = 10
   ## Batch interval
   batch_interval = "10s"
+  data_format = "template"

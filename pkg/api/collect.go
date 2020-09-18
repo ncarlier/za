@@ -1,18 +1,14 @@
 package api
 
 import (
-	"net"
 	"net/http"
-	"net/url"
-	"strings"
-	"time"
 
 	"github.com/mssola/user_agent"
 	"github.com/ncarlier/trackr/pkg/config"
+	"github.com/ncarlier/trackr/pkg/events"
 	"github.com/ncarlier/trackr/pkg/geoip"
 	"github.com/ncarlier/trackr/pkg/helper"
 	"github.com/ncarlier/trackr/pkg/logger"
-	"github.com/ncarlier/trackr/pkg/model"
 	"github.com/ncarlier/trackr/pkg/outputs"
 )
 
@@ -54,7 +50,6 @@ func collectHandler(conf *config.Config) http.Handler {
 			return
 		}
 
-		browser, _ := ua.Browser()
 		q := r.URL.Query()
 
 		trackingID := q.Get("tid")
@@ -64,34 +59,23 @@ func collectHandler(conf *config.Config) http.Handler {
 			return
 		}
 
-		pageview := model.PageView{
-			TrackingID:       trackingID,
-			ClientIP:         helper.ParseClientIP(r),
-			Protocol:         r.Proto,
-			UserAgent:        ua.UA(),
-			Browser:          browser,
-			OS:               ua.OS(),
-			UserLanguage:     q.Get("ul"),
-			DocumentHostName: parseHostname(q.Get("dh")),
-			DocumentPath:     parsePathname(q.Get("dp")),
-			DocumentReferer:  q.Get("dr"),
-			IsNewVisitor:     q.Get("nv") == "1",
-			IsNewSession:     q.Get("ns") == "1",
-			Tags:             conf.Global.Tags,
-			Timestamp:        time.Now(),
-		}
-
-		if geoIPDatabase != nil {
-			if ip := net.ParseIP(pageview.ClientIP); ip != nil {
-				pageview.CountryCode, err = geoIPDatabase.LookupCountry(ip)
-				if err != nil {
-					logger.Warning.Printf("unable to retrieve IP country code: %v", err)
-				}
+		var event events.Event
+		switch q.Get("t") {
+		case "pageview":
+			event, err = events.NewPageViewEvent(r, conf.Global.Tags, geoIPDatabase)
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
 			}
+		default:
+			logger.Debug.Println("not yet implemented")
+			w.WriteHeader(http.StatusBadRequest)
+			return
+
 		}
 
-		// Send page view to outputs manager
-		outputs.SendPageView(pageview)
+		// Send event to outputs manager
+		outputs.SendEvent(event)
 
 		// Write GIF beacon as response
 		helper.WriteBeacon(w, "P")
@@ -102,18 +86,6 @@ func isValidRequest(r *http.Request) bool {
 	// Validate HTTP request
 	q := r.URL.Query()
 	tid := q.Get("tid")
-	_, validType := model.EventTypes[q.Get("t")]
+	_, validType := events.EventTypes[q.Get("t")]
 	return tid != "" && validType
-}
-
-func parsePathname(p string) string {
-	return "/" + strings.TrimLeft(p, "/")
-}
-
-func parseHostname(r string) string {
-	u, err := url.Parse(r)
-	if err != nil {
-		return ""
-	}
-	return u.Scheme + "://" + u.Host
 }

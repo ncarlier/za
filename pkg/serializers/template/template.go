@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"text/template"
 
-	"github.com/ncarlier/trackr/pkg/model"
+	"github.com/ncarlier/trackr/pkg/events"
 )
 
 const defaultDataFormatTemplate = "{{.ClientIP}} {{.HostName}} - [{{.FormattedTS}}] \"GET {{.DocumentPath}} {{.Protocol}}\" 200 1 \"{{.DocumentReferer}}\" \"{{.UserAgent}}\""
@@ -34,9 +34,9 @@ func NewSerializer(format string) (*serializer, error) {
 	return s, nil
 }
 
-func (s *serializer) Serialize(pageview model.PageView) ([]byte, error) {
+func (s *serializer) Serialize(event events.Event) ([]byte, error) {
 	serialized := new(bytes.Buffer)
-	err := s.template.Execute(serialized, pageview)
+	err := s.template.Execute(serialized, event)
 	if err != nil {
 		return []byte{}, err
 	}

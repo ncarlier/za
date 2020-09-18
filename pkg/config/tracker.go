@@ -1,4 +1,4 @@
-package model
+package config
 
 // Tracker structure
 type Tracker struct {

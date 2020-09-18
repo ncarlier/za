@@ -3,7 +3,7 @@ package json
 import (
 	"encoding/json"
 
-	"github.com/ncarlier/trackr/pkg/model"
+	"github.com/ncarlier/trackr/pkg/events"
 )
 
 type serializer struct {
@@ -15,8 +15,8 @@ func NewSerializer() (*serializer, error) {
 	return s, nil
 }
 
-func (s *serializer) Serialize(pageview model.PageView) ([]byte, error) {
-	serialized, err := json.Marshal(pageview)
+func (s *serializer) Serialize(event events.Event) ([]byte, error) {
+	serialized, err := json.Marshal(event)
 	if err != nil {
 		return []byte{}, err
 	}

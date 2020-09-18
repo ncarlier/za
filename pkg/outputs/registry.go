@@ -1,9 +1,7 @@
 package outputs
 
-import "github.com/ncarlier/trackr/pkg/model"
-
 // Creator function for an output
-type Creator func() model.Output
+type Creator func() Output
 
 // Outputs registry
 var Outputs = map[string]Creator{}

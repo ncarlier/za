@@ -16,7 +16,7 @@ type Server struct {
 
 // ListenAndServe starts server
 func (s *Server) ListenAndServe() error {
-	logger.Debug.Println("starting HTTP server...")
+	logger.Info.Println("server is ready to handle requests at", s.self.Addr)
 	if err := s.self.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}

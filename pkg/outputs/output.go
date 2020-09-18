@@ -1,4 +1,6 @@
-package model
+package outputs
+
+import "github.com/ncarlier/trackr/pkg/events"
 
 // Output writer
 type Output interface {
@@ -6,6 +8,6 @@ type Output interface {
 	Connect() error
 	// Close any connections to the Output
 	Close() error
-	// SendPageView page view to the Output
-	SendPageView(view PageView) error
+	// SendEvent sent event to the Output
+	SendEvent(evt events.Event) error
 }

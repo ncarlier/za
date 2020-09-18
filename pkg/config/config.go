@@ -8,7 +8,6 @@ import (
 
 	"github.com/influxdata/toml"
 	"github.com/influxdata/toml/ast"
-	"github.com/ncarlier/trackr/pkg/model"
 	"github.com/ncarlier/trackr/pkg/outputs"
 	"github.com/ncarlier/trackr/pkg/serializers"
 )
@@ -16,8 +15,8 @@ import (
 // Config is the root of the configuration
 type Config struct {
 	Global   GlobalConfig
-	Trackers []model.Tracker
-	Outputs  []model.Output
+	Trackers []Tracker
+	Outputs  []outputs.Output
 }
 
 // GlobalConfig is the global section fo the configuration
@@ -32,8 +31,8 @@ func NewConfig() *Config {
 		Global: GlobalConfig{
 			Tags: make(map[string]string),
 		},
-		Trackers: make([]model.Tracker, 0),
-		Outputs:  make([]model.Output, 0),
+		Trackers: make([]Tracker, 0),
+		Outputs:  make([]outputs.Output, 0),
 	}
 	return c
 }
@@ -121,7 +120,7 @@ func (c *Config) LoadConfig(path string) error {
 }
 
 func (c *Config) addTracker(table *ast.Table) error {
-	tracker := model.Tracker{}
+	tracker := Tracker{}
 	if err := toml.UnmarshalTable(table, &tracker); err != nil {
 		return err
 	}

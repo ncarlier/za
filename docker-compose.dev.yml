@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  #######################################
+  # Logging: Loki
+  #######################################
+  loki:
+    image: "grafana/loki"
+    restart: always
+    ports:
+      - "${LOKI_PORT:-3100}:3100"
+
+  #######################################
+  # Dashboarding: Grafana
+  #######################################
+  grafana:
+    image: "grafana/grafana:latest"
+    restart: always
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"

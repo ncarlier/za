@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/ncarlier/trackr/pkg/config"
+	"github.com/ncarlier/trackr/pkg/events"
 	"github.com/ncarlier/trackr/pkg/logger"
-	"github.com/ncarlier/trackr/pkg/model"
 	"github.com/ncarlier/trackr/pkg/outputs"
 	"github.com/ncarlier/trackr/pkg/outputs/loki/logproto"
 	"github.com/ncarlier/trackr/pkg/serializers"
@@ -27,7 +27,7 @@ type Loki struct {
 	serializer serializers.Serializer
 
 	quit      chan struct{}
-	entries   chan model.PageView
+	entries   chan events.Event
 	waitGroup sync.WaitGroup
 }
 
@@ -61,9 +61,11 @@ func (l *Loki) Connect() error {
 	l.client = NewClient(cfg)
 
 	l.quit = make(chan struct{})
-	l.entries = make(chan model.PageView, maxEntriesChanSize)
+	l.entries = make(chan events.Event, maxEntriesChanSize)
 
 	go l.run()
+
+	logger.Debug.Printf("using LOKI output: %s\n", u.String())
 
 	return nil
 }
@@ -85,15 +87,15 @@ func (l *Loki) Description() string {
 	return "Loki client"
 }
 
-// SendPageView page view to the Output
-func (l *Loki) SendPageView(view model.PageView) error {
-	l.entries <- view
+// SendEvent send event to the Output
+func (l *Loki) SendEvent(event events.Event) error {
+	l.entries <- event
 	return nil
 }
 
 func (l *Loki) run() {
 	l.waitGroup.Add(1)
-	var batch []*model.PageView
+	var batch []events.Event
 	batchSize := 0
 	maxWait := time.NewTimer(l.BatchInterval.Duration)
 
@@ -109,13 +111,13 @@ func (l *Loki) run() {
 		case <-l.quit:
 			return
 		case entry := <-l.entries:
-			batch = append(batch, &entry)
+			batch = append(batch, entry)
 			batchSize++
 			if batchSize >= l.BatchSize {
 				if err := l.write(batch); err != nil {
 					logger.Error.Printf("unable to send batch of page view to Loki (%s): %v\n", l.URL, err)
 				}
-				batch = []*model.PageView{}
+				batch = []events.Event{}
 				batchSize = 0
 				maxWait.Reset(l.BatchInterval.Duration)
 			}
@@ -124,7 +126,7 @@ func (l *Loki) run() {
 				if err := l.write(batch); err != nil {
 					logger.Error.Printf("unable to send batch of page view to Loki (%s): %v\n", l.URL, err)
 				}
-				batch = []*model.PageView{}
+				batch = []events.Event{}
 				batchSize = 0
 			}
 			maxWait.Reset(l.BatchInterval.Duration)
@@ -132,15 +134,15 @@ func (l *Loki) run() {
 	}
 }
 
-func (l *Loki) write(views []*model.PageView) error {
+func (l *Loki) write(entries []events.Event) error {
 	batch := map[string]*logproto.Stream{}
 
-	for _, view := range views {
-		line, err := l.serializer.Serialize(*view)
+	for _, event := range entries {
+		line, err := l.serializer.Serialize(event)
 		if err != nil {
 			return err
 		}
-		labels := view.Labels().String()
+		labels := event.Labels().String()
 		stream, ok := batch[labels]
 		if !ok {
 			stream = &logproto.Stream{
@@ -149,7 +151,7 @@ func (l *Loki) write(views []*model.PageView) error {
 			batch[labels] = stream
 		}
 		entry := logproto.Entry{
-			Timestamp: view.Timestamp,
+			Timestamp: event.TS(),
 			Line:      string(line),
 		}
 		stream.Entries = append(stream.Entries, entry)
@@ -162,7 +164,7 @@ func (l *Loki) write(views []*model.PageView) error {
 }
 
 func init() {
-	outputs.Add("loki", func() model.Output {
+	outputs.Add("loki", func() outputs.Output {
 		return &Loki{
 			URL:           "http://localhost:3100",
 			Timeout:       config.Duration{Duration: time.Second * 2},

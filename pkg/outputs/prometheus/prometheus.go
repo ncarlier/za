@@ -3,12 +3,11 @@ package prometheus
 import (
 	"context"
 	"net/http"
-	"strconv"
 	"sync"
 	"time"
 
+	"github.com/ncarlier/trackr/pkg/events"
 	"github.com/ncarlier/trackr/pkg/logger"
-	"github.com/ncarlier/trackr/pkg/model"
 	"github.com/ncarlier/trackr/pkg/outputs"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -105,29 +104,23 @@ func (p *Client) Description() string {
 	return "Prometheus client"
 }
 
-// SendPageView page view to the Output
-func (p *Client) SendPageView(view model.PageView) error {
+// SendEvent send event to the Output
+func (p *Client) SendEvent(event events.Event) error {
 	p.Lock()
 	defer p.Unlock()
 
-	p.pageviewsCounter.With(prometheus.Labels{
-		"tid":          view.TrackingID,
-		"hostname":     view.DocumentHostName,
-		"path":         view.DocumentPath,
-		"isNewVisitor": strconv.FormatBool(view.IsNewVisitor),
-	}).Inc()
-	if view.DocumentReferer != "" {
-		p.referersCounter.With(prometheus.Labels{
-			"tid":     view.TrackingID,
-			"referer": view.DocumentReferer,
-		}).Inc()
+	labels := make(prometheus.Labels, len(event.Labels()))
+	for k, v := range event.Labels() {
+		labels[k] = v
 	}
+
+	p.pageviewsCounter.With(labels).Inc()
 
 	return nil
 }
 
 func init() {
-	outputs.Add("prometheus", func() model.Output {
+	outputs.Add("prometheus", func() outputs.Output {
 		return &Client{
 			Listen: ":9213",
 			Path:   "/metrics",

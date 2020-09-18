@@ -58,7 +58,6 @@ func main() {
 	}()
 
 	addr := conf.ListenAddr
-	logger.Info.Println("server is ready to handle requests at", addr)
 	api.Start()
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Error.Fatalf("could not listen on %s : %v\n", addr, err)

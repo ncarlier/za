@@ -3,13 +3,13 @@ package serializers
 import (
 	"fmt"
 
-	"github.com/ncarlier/trackr/pkg/model"
+	"github.com/ncarlier/trackr/pkg/events"
 	"github.com/ncarlier/trackr/pkg/serializers/json"
 	"github.com/ncarlier/trackr/pkg/serializers/template"
 )
 
 // SerializerOutput is an interface for output plugins that are able to
-// serialize page views into arbitrary data formats.
+// serialize events into arbitrary data formats.
 type SerializerOutput interface {
 	// SetSerializer sets the serializer function for the interface.
 	SetSerializer(serializer Serializer)
@@ -17,10 +17,10 @@ type SerializerOutput interface {
 
 // Serializer is an interface defining functions that a serializer plugin must satisfy.
 type Serializer interface {
-	// Serialize takes a single page view and turns it into a byte buffer.
+	// Serialize takes a single event and turns it into a byte buffer.
 	// separate metrics should be separated by a newline, and there should be
 	// a newline at the end of the buffer.
-	Serialize(view model.PageView) ([]byte, error)
+	Serialize(event events.Event) ([]byte, error)
 }
 
 // Config is a struct that covers the data types needed for all serializer types,

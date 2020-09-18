@@ -2,6 +2,7 @@ package helper
 
 import (
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -19,4 +20,18 @@ func ParseClientIP(r *http.Request) string {
 	}
 
 	return clientIP
+}
+
+// ParsePathname extract path with leading slash
+func ParsePathname(s string) string {
+	return "/" + strings.TrimLeft(s, "/")
+}
+
+// ParseHostname extract from an URL
+func ParseHostname(s string) string {
+	u, err := url.Parse(s)
+	if err != nil {
+		return ""
+	}
+	return u.Scheme + "://" + u.Host
 }
