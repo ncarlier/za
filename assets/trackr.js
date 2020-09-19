@@ -124,9 +124,12 @@
     window.onerror = function(msg, url, line, column, error) {
       const q = {
         tid: config.tid,
-        t: 'error',
-        err: msg,
-        d: JSON.stringify({line, column, error}),
+        t: 'exception',
+        exm: msg,
+        exl: line,
+        exc: column,
+        exu: url,
+        exe: error,
         z: Date.now(), // Cache buster
       };
       writeBeaconImg(q);
@@ -141,7 +144,7 @@
     const q = {
       tid: config.tid,
       t: 'event',
-      d: JSON.stringify(payload),
+      d: window.btoa(JSON.stringify(payload)),
       z: Date.now(), // Cache buster
     };
     writeBeaconImg(q);

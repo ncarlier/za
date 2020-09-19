@@ -37,4 +37,3 @@ tracking_id = "UA-XXXX-Y"
   batch_size = 10
   ## Batch interval
   batch_interval = "10s"
-  data_format = "template"

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/mssola/user_agent"
@@ -60,18 +61,21 @@ func collectHandler(conf *config.Config) http.Handler {
 		}
 
 		var event events.Event
-		switch q.Get("t") {
+		eventType := q.Get("t")
+		switch eventType {
 		case "pageview":
 			event, err = events.NewPageViewEvent(r, conf.Global.Tags, geoIPDatabase)
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
+		case "exception":
+			event, err = events.NewExceptionEvent(r, conf.Global.Tags, geoIPDatabase)
+		case "event":
+			event, err = events.NewSimpleEvent(r, conf.Global.Tags, geoIPDatabase)
 		default:
-			logger.Debug.Println("not yet implemented")
+			err = errors.New("event type not yet implemented: " + eventType)
+		}
+		if err != nil {
+			logger.Debug.Printf("error: unable to create event: %v\n", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
-
 		}
 
 		// Send event to outputs manager
@@ -86,6 +90,6 @@ func isValidRequest(r *http.Request) bool {
 	// Validate HTTP request
 	q := r.URL.Query()
 	tid := q.Get("tid")
-	_, validType := events.EventTypes[q.Get("t")]
-	return tid != "" && validType
+	t := q.Get("t")
+	return tid != "" && events.Types.IsValid(t)
 }

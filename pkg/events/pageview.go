@@ -15,21 +15,14 @@ import (
 
 // PageView contains tracked attribute when a page is viewed
 type PageView struct {
-	TrackingID       string
-	ClientIP         string
-	CountryCode      string
-	Protocol         string
-	UserAgent        string
-	Browser          string
-	OS               string
-	UserLanguage     string
-	DocumentHostName string
-	DocumentPath     string
-	DocumentReferer  string
-	IsNewVisitor     bool
-	IsNewSession     bool
-	Tags             map[string]string
-	Timestamp        time.Time
+	BaseEvent
+	Protocol         string `json:"-"`
+	UserLanguage     string `json:"language"`
+	DocumentHostName string `json:"hostname"`
+	DocumentPath     string `json:"path"`
+	DocumentReferer  string `json:"referer"`
+	IsNewVisitor     bool   `json:"-"`
+	IsNewSession     bool   `json:"-"`
 }
 
 // HostName returns document hostname without scheme
@@ -40,7 +33,7 @@ func (p PageView) HostName() string {
 
 // Type returns event type
 func (p PageView) Type() string {
-	return "pageview"
+	return Types.PageView
 }
 
 // TS returns timestamp
@@ -57,6 +50,7 @@ func (p PageView) FormattedTS() string {
 func (p PageView) Labels() Labels {
 	labels := Labels{
 		"tid":          p.TrackingID,
+		"type":         p.Type(),
 		"hostname":     p.DocumentHostName,
 		"path":         p.DocumentPath,
 		"isNewVisitor": strconv.FormatBool(p.IsNewVisitor),
@@ -70,26 +64,29 @@ func (p PageView) Labels() Labels {
 	return labels
 }
 
+// NewPageViewEvent create page view event from HTTP request
 func NewPageViewEvent(r *http.Request, tags map[string]string, geoipdb *geoip.DB) (Event, error) {
 	q := r.URL.Query()
 	ua := user_agent.New(r.UserAgent())
 	browser, _ := ua.Browser()
 
 	pageview := PageView{
-		TrackingID:       q.Get("tid"),
-		ClientIP:         helper.ParseClientIP(r),
+		BaseEvent: BaseEvent{
+			TrackingID: q.Get("tid"),
+			ClientIP:   helper.ParseClientIP(r),
+			UserAgent:  ua.UA(),
+			Browser:    browser,
+			OS:         ua.OS(),
+			Tags:       tags,
+			Timestamp:  time.Now(),
+		},
 		Protocol:         r.Proto,
-		UserAgent:        ua.UA(),
-		Browser:          browser,
-		OS:               ua.OS(),
 		UserLanguage:     q.Get("ul"),
 		DocumentHostName: helper.ParseHostname(q.Get("dh")),
 		DocumentPath:     helper.ParsePathname(q.Get("dp")),
 		DocumentReferer:  q.Get("dr"),
 		IsNewVisitor:     q.Get("nv") == "1",
 		IsNewSession:     q.Get("ns") == "1",
-		Tags:             tags,
-		Timestamp:        time.Now(),
 	}
 	if geoipdb != nil {
 		if ip := net.ParseIP(pageview.ClientIP); ip != nil {
