@@ -1,0 +1,29 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Send uncaught Javascript error</title>
+  <meta name="description" content="Trackr example page">
+</head>
+<body>
+  <h1>Send uncaught Javascript error</h1>
+  <p>
+    Analytics tag track pageviews but you can also trap uncaught Javascript errors.
+  </p>
+<!-- Start analytics script -->
+<script>
+  window.trackr = window.trackr||function(){(trackr.q=trackr.q||[]).push(arguments)};trackr.l=+new Date;
+  trackr('create', 'UA-XXXX-Y', 'auto');
+  trackr('send', 'error');
+</script>
+<script async src='http://localhost:8080/trackr.js' id="trackr-script"></script>
+<!-- End analytics script -->
+<!-- Somewhere in your site -->
+<script>
+  setTimeout(() => {
+    throw 'this is a uncaught error'
+  }, 1000);
+</script>
+</body>
+</html>

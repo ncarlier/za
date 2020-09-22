@@ -1,0 +1,24 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Async analytics tag</title>
+</head>
+<body>
+  <h1>Async analytics tag</h1>
+  <p>
+    The classic analytic tag guarantees that the script will be loaded and executed asynchronously on all browsers.
+    This works well but is not very effective.
+    You can take advantage of the browser's preloading capability by using asynchronous analytics loading.
+  </p>
+<!-- Start analytics script -->
+<script>
+  window.trackr = window.trackr||function(){(trackr.q=trackr.q||[]).push(arguments)};trackr.l=+new Date;
+  trackr('create', 'UA-XXXX-Y', 'auto');
+  trackr('send', 'pageview');
+</script>
+<script async src='http://localhost:8080/trackr.js' id="trackr-script"></script>
+<!-- End analytics script -->
+</body>
+</html>

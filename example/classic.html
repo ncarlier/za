@@ -1,0 +1,29 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Classic analytics tag</title>
+</head>
+<body>
+  <h1>Classic analytics tag</h1>
+  <p>
+    The classic analytic tag guarantees that the script will be loaded and executed asynchronously on all browsers.
+  </p>
+<!-- Start analytics script -->
+<script>
+  (function(i, s, o, g, r, a, m){
+    s[r]=s[r]||function(){
+      (s[r].q=s[r].q||[]).push(arguments)
+    };
+    a=i.createElement(o),
+    m=i.getElementsByTagName(o)[0];
+    a.async=1; a.src=g; a.id='trackr-script';
+    m.parentNode.insertBefore(a,m)
+  })(document, window, 'script', 'http://localhost:8080/trackr.js', 'trackr');
+  trackr('create', 'UA-XXXX-Y', 'auto');
+  trackr('send', 'pageview');
+</script>
+<!-- End analytics script -->
+</body>
+</html>

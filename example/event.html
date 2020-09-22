@@ -1,0 +1,29 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Send custom events</title>
+  <meta name="description" content="Trackr example page">
+</head>
+<body>
+  <h1>Send custom events</h1>
+  <p>
+    Analytics tag track visited pages, but you can also use methods to send customized events.
+  </p>
+<!-- Start analytics script -->
+<script>
+  window.trackr = window.trackr||function(){(trackr.q=trackr.q||[]).push(arguments)};trackr.l=+new Date;
+  trackr('create', 'UA-XXXX-Y', 'auto');
+  trackr('send', 'pageview');
+</script>
+<script async src='http://localhost:8080/trackr.js' id="trackr-script"></script>
+<!-- End analytics script -->
+<!-- Somewhere in your site -->
+<script>
+  setTimeout(() => {
+    trackr('send', 'event', {"foo": "bar"});
+  }, 1000);
+</script>
+</body>
+</html>
