@@ -1,14 +1,14 @@
 {
-  "name": "trackr",
+  "name": "za",
   "version": "1.0.0",
   "description": "Simple web analytics app.",
-  "main": "assets/trackr.js",
+  "main": "assets/za.js",
   "directories": {
     "example": "example"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "minify": "terser assets/trackr.js -c -m -o assets/trackr.min.js"
+    "minify": "terser assets/za.js -c -m -o assets/za.min.js"
   },
   "author": "",
   "license": "ISC",

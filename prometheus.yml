@@ -4,13 +4,13 @@ global:
   # Attach these labels to any time series or alerts when communicating with
   # external systems (federation, remote storage, Alertmanager).
   external_labels:
-    monitor: 'trackr'
+    monitor: 'za'
 
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
-  - job_name: 'trackr'
+  - job_name: 'za'
 
     static_configs:
-      - targets: ['trackr:9213']
+      - targets: ['za:9213']

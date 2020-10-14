@@ -9,18 +9,18 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ncarlier/trackr/pkg/api"
-	"github.com/ncarlier/trackr/pkg/config"
-	"github.com/ncarlier/trackr/pkg/logger"
-	_ "github.com/ncarlier/trackr/pkg/outputs/all"
-	"github.com/ncarlier/trackr/pkg/server"
-	"github.com/ncarlier/trackr/pkg/version"
 	configflag "github.com/ncarlier/webhookd/pkg/config/flag"
+	"github.com/ncarlier/za/pkg/api"
+	"github.com/ncarlier/za/pkg/config"
+	"github.com/ncarlier/za/pkg/logger"
+	_ "github.com/ncarlier/za/pkg/outputs/all"
+	"github.com/ncarlier/za/pkg/server"
+	"github.com/ncarlier/za/pkg/version"
 )
 
 func main() {
 	conf := &config.Flags{}
-	configflag.Bind(conf, "TRACKR")
+	configflag.Bind(conf, "ZA")
 
 	flag.Parse()
 
@@ -35,7 +35,7 @@ func main() {
 	}
 	logger.Init(level)
 
-	logger.Debug.Println("starting trackr server...")
+	logger.Debug.Println("starting ZerØ Analytics server...")
 
 	srv := server.NewServer(conf)
 

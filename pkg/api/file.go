@@ -3,8 +3,8 @@ package api
 import (
 	"net/http"
 
-	"github.com/ncarlier/trackr/pkg/assets"
-	"github.com/ncarlier/trackr/pkg/config"
+	"github.com/ncarlier/za/pkg/assets"
+	"github.com/ncarlier/za/pkg/config"
 )
 
 func fileHandler(filename string) HandlerFunc {

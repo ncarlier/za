@@ -1,6 +1,6 @@
 package outputs
 
-import "github.com/ncarlier/trackr/pkg/events"
+import "github.com/ncarlier/za/pkg/events"
 
 // Output writer
 type Output interface {

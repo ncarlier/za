@@ -3,7 +3,7 @@ package json
 import (
 	"encoding/json"
 
-	"github.com/ncarlier/trackr/pkg/events"
+	"github.com/ncarlier/za/pkg/events"
 )
 
 type serializer struct {

@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"text/template"
 
-	"github.com/ncarlier/trackr/pkg/events"
+	"github.com/ncarlier/za/pkg/events"
 )
 
 const defaultDataFormatTemplate = "{{.ClientIP}} {{.HostName}} - [{{.FormattedTS}}] \"GET {{.DocumentPath}} {{.Protocol}}\" 200 1 \"{{.DocumentReferer}}\" \"{{.UserAgent}}\""

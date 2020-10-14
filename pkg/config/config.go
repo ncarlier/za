@@ -8,8 +8,8 @@ import (
 
 	"github.com/influxdata/toml"
 	"github.com/influxdata/toml/ast"
-	"github.com/ncarlier/trackr/pkg/outputs"
-	"github.com/ncarlier/trackr/pkg/serializers"
+	"github.com/ncarlier/za/pkg/outputs"
+	"github.com/ncarlier/za/pkg/serializers"
 )
 
 // Config is the root of the configuration

@@ -3,7 +3,7 @@ package geoip
 import (
 	"net"
 
-	"github.com/ncarlier/trackr/pkg/logger"
+	"github.com/ncarlier/za/pkg/logger"
 	"github.com/oschwald/maxminddb-golang"
 )
 

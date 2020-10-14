@@ -3,8 +3,8 @@ package api
 import (
 	"net/http"
 
-	"github.com/ncarlier/trackr/pkg/config"
-	"github.com/ncarlier/trackr/pkg/middleware"
+	"github.com/ncarlier/za/pkg/config"
+	"github.com/ncarlier/za/pkg/middleware"
 )
 
 var commonMiddlewares = []middleware.Middleware{

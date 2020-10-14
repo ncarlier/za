@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/ncarlier/trackr/pkg/config"
-	"github.com/ncarlier/trackr/pkg/version"
+	"github.com/ncarlier/za/pkg/config"
+	"github.com/ncarlier/za/pkg/version"
 )
 
 // Info API informations model structure.
@@ -21,7 +21,7 @@ func infoHandler(conf *config.Config) http.Handler {
 			return
 		}
 		info := Info{
-			Name:    "trackr",
+			Name:    "ZerØ Analytics",
 			Version: version.Version,
 		}
 		data, err := json.Marshal(info)

@@ -1,4 +1,4 @@
-# Trackr configuration
+# ZerØ Analytics configuration file
 
 [global]
 geo_ip_database = "./var/dbip-country-lite.mmdb"

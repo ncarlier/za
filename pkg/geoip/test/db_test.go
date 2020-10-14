@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/ncarlier/trackr/pkg/geoip"
+	"github.com/ncarlier/za/pkg/geoip"
 )
 
 func TestLookupCountry(t *testing.T) {

@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ncarlier/trackr/pkg/outputs/loki/logproto"
+	"github.com/ncarlier/za/pkg/outputs/loki/logproto"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/golang/snappy"

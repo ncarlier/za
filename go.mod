@@ -1,4 +1,4 @@
-module github.com/ncarlier/trackr
+module github.com/ncarlier/za
 
 go 1.14
 

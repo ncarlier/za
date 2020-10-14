@@ -6,10 +6,10 @@ import (
 	"io"
 	"os"
 
-	"github.com/ncarlier/trackr/pkg/events"
-	"github.com/ncarlier/trackr/pkg/logger"
-	"github.com/ncarlier/trackr/pkg/outputs"
-	"github.com/ncarlier/trackr/pkg/serializers"
+	"github.com/ncarlier/za/pkg/events"
+	"github.com/ncarlier/za/pkg/logger"
+	"github.com/ncarlier/za/pkg/outputs"
+	"github.com/ncarlier/za/pkg/serializers"
 )
 
 // File output

@@ -7,7 +7,7 @@ FROM golang:1.14 AS builder
 ARG REPOSITORY=github.com/ncarlier
 
 # Artifact name
-ARG ARTIFACT=trackr
+ARG ARTIFACT=za
 
 # Copy sources into the container
 ADD . /go/src/$REPOSITORY/$ARTIFACT
@@ -27,7 +27,7 @@ FROM debian:stable-slim
 ARG REPOSITORY=github.com/ncarlier
 
 # Artifact name
-ARG ARTIFACT=trackr
+ARG ARTIFACT=za
 
 # Install project files
 COPY --from=builder /go/src/$REPOSITORY/$ARTIFACT/release/ /usr/local/share/$ARTIFACT/
@@ -51,4 +51,4 @@ WORKDIR /usr/local/share/$ARTIFACT
 EXPOSE 8080 9213
 
 # Define command
-CMD trackr
+CMD za

@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/mssola/user_agent"
-	"github.com/ncarlier/trackr/pkg/config"
-	"github.com/ncarlier/trackr/pkg/events"
-	"github.com/ncarlier/trackr/pkg/geoip"
-	"github.com/ncarlier/trackr/pkg/helper"
-	"github.com/ncarlier/trackr/pkg/logger"
-	"github.com/ncarlier/trackr/pkg/outputs"
+	"github.com/ncarlier/za/pkg/config"
+	"github.com/ncarlier/za/pkg/events"
+	"github.com/ncarlier/za/pkg/geoip"
+	"github.com/ncarlier/za/pkg/helper"
+	"github.com/ncarlier/za/pkg/logger"
+	"github.com/ncarlier/za/pkg/outputs"
 )
 
 func collectHandler(conf *config.Config) http.Handler {

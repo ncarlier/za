@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ncarlier/trackr/pkg/events"
-	"github.com/ncarlier/trackr/pkg/logger"
-	"github.com/ncarlier/trackr/pkg/outputs"
+	"github.com/ncarlier/za/pkg/events"
+	"github.com/ncarlier/za/pkg/logger"
+	"github.com/ncarlier/za/pkg/outputs"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

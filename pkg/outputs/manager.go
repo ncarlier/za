@@ -1,8 +1,8 @@
 package outputs
 
 import (
-	"github.com/ncarlier/trackr/pkg/events"
-	"github.com/ncarlier/trackr/pkg/logger"
+	"github.com/ncarlier/za/pkg/events"
+	"github.com/ncarlier/za/pkg/logger"
 )
 
 const maxEntriesChanSize = 5000

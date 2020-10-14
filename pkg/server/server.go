@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/ncarlier/trackr/pkg/api"
-	"github.com/ncarlier/trackr/pkg/config"
-	"github.com/ncarlier/trackr/pkg/logger"
+	"github.com/ncarlier/za/pkg/api"
+	"github.com/ncarlier/za/pkg/config"
+	"github.com/ncarlier/za/pkg/logger"
 )
 
 // Server instance

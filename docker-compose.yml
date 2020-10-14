@@ -31,16 +31,16 @@ services:
       - "${GRAFANA_PORT:-3000}:3000"
 
   #######################################
-  # Trackr
+  # ZerØ Analytics
   #######################################
-  trackr:
-    image: "ncarlier/trackr"
+  za:
+    image: "ncarlier/za"
     restart: always
     environment:
-      - TRACKR_DEBUG=true
-      - TRACKR_CONFIG_FILE=/etc/trackr.toml
+      - ZA_DEBUG=true
+      - ZA_CONFIG_FILE=/etc/zero-analytics.toml
     ports:
-      - "${TRACKR_PORT:-8080}:8080"
+      - "${ZA_PORT:-8080}:8080"
     volumes:
-      - ./trackr.toml:/etc/trackr.toml
+      - ./zero-analytics.toml:/etc/zero-analytics.toml
 

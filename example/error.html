@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>Send uncaught Javascript error</title>
-  <meta name="description" content="Trackr example page">
+  <meta name="description" content="za example page">
 </head>
 <body>
   <h1>Send uncaught Javascript error</h1>
@@ -13,11 +13,11 @@
   </p>
 <!-- Start analytics script -->
 <script>
-  window.trackr = window.trackr||function(){(trackr.q=trackr.q||[]).push(arguments)};trackr.l=+new Date;
-  trackr('create', 'UA-XXXX-Y', 'auto');
-  trackr('send', 'error');
+  window.za = window.za||function(){(za.q=za.q||[]).push(arguments)};za.l=+new Date;
+  za('create', 'UA-XXXX-Y', 'auto');
+  za('send', 'error');
 </script>
-<script async src='http://localhost:8080/trackr.js' id="trackr-script"></script>
+<script async src='http://localhost:8080/za.js' id="za-script"></script>
 <!-- End analytics script -->
 <!-- Somewhere in your site -->
 <script>

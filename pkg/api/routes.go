@@ -3,8 +3,8 @@ package api
 import (
 	"net/http"
 
-	"github.com/ncarlier/trackr/pkg/config"
-	"github.com/ncarlier/trackr/pkg/middleware"
+	"github.com/ncarlier/za/pkg/config"
+	"github.com/ncarlier/za/pkg/middleware"
 )
 
 // HandlerFunc custom function handler
@@ -41,13 +41,13 @@ func routes(conf *config.Config) Routes {
 			middleware.Methods("GET", "POST"),
 		),
 		route(
-			"/trackr.js",
-			fileHandler("trackr.js"),
+			"/za.js",
+			fileHandler("za.js"),
 			middleware.Methods("GET"),
 		),
 		route(
-			"/trackr.min.js",
-			fileHandler("trackr.min.js"),
+			"/za.min.js",
+			fileHandler("za.min.js"),
 			middleware.Methods("GET"),
 		),
 		route(

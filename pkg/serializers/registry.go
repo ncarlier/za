@@ -3,9 +3,9 @@ package serializers
 import (
 	"fmt"
 
-	"github.com/ncarlier/trackr/pkg/events"
-	"github.com/ncarlier/trackr/pkg/serializers/json"
-	"github.com/ncarlier/trackr/pkg/serializers/template"
+	"github.com/ncarlier/za/pkg/events"
+	"github.com/ncarlier/za/pkg/serializers/json"
+	"github.com/ncarlier/za/pkg/serializers/template"
 )
 
 // SerializerOutput is an interface for output plugins that are able to

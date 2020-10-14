@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ncarlier/trackr/pkg/config"
+	"github.com/ncarlier/za/pkg/config"
 )
 
 func varzHandler(conf *config.Config) http.Handler {

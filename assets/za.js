@@ -1,7 +1,7 @@
 (function() { 
   'use strict';
 
-  let queue = window.trackr.q || [];
+  let queue = window.za.q || [];
   let config = {
     tid: '',
     domain: 'auto',
@@ -42,7 +42,7 @@
     if (!(ds in window)) {
       return null;
     }
-    const key = 'trackr-' + source;
+    const key = 'za-' + source;
     const value = window[ds].getItem(key);
     if (!value) {
       return null;
@@ -59,7 +59,7 @@
     if (!(ds in window)) {
       return null;
     }
-    const key = 'trackr-' + source;
+    const key = 'za-' + source;
     window[ds].setItem(key, JSON.stringify(data));
   }
 
@@ -81,8 +81,8 @@
   }
 
   function getTrackerUrl() {
-    const el = document.getElementById('trackr-script');
-    return el ? el.src.replace(/trackr(\.min)?\.js/, 'collect') : '';
+    const el = document.getElementById('za-script');
+    return el ? el.src.replace(/za(\.min)?\.js/, 'collect') : '';
   }
 
   function getCanonicalURL(loc) {
@@ -199,13 +199,13 @@
     writeBeaconImg(q);
   }
 
-  // define Trackr global function
-  window.trackr = function() {
+  // define za global function
+  window.za = function() {
     var args = [].slice.call(arguments);
     var c = args.shift();
     commands[c].apply(this, args);
   };
 
   // process command pipeline
-  queue.forEach((i) => window.trackr.apply(this, i));
+  queue.forEach((i) => window.za.apply(this, i));
 })();

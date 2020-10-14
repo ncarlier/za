@@ -3,7 +3,7 @@
 export GO111MODULE=on
 
 # App name
-APPNAME=trackr
+APPNAME=za
 
 # Go configuration
 GOOS?=linux
@@ -42,15 +42,15 @@ include $(makefiles)/docker/compose.Makefile
 ## Clean built files
 clean:
 	-rm -rf release
-	-rm assets/trackr.min.js pkg/assets/statik.go
+	-rm assets/za.min.js pkg/assets/statik.go
 .PHONY: clean
 
 # Build minified JS
-assets/trackr.min.js:
+assets/za.min.js:
 	npm run minify
 
 # Build assets as Go file
-pkg/assets/statik.go: assets/trackr.min.js
+pkg/assets/statik.go: assets/za.min.js
 	echo ">>> Generating \"pkg/assets/statik.go\" ..."
 	go get -u github.com/rakyll/statik
 	statik -p assets -src assets -dest pkg -f

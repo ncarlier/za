@@ -6,12 +6,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ncarlier/trackr/pkg/config"
-	"github.com/ncarlier/trackr/pkg/events"
-	"github.com/ncarlier/trackr/pkg/logger"
-	"github.com/ncarlier/trackr/pkg/outputs"
-	"github.com/ncarlier/trackr/pkg/outputs/loki/logproto"
-	"github.com/ncarlier/trackr/pkg/serializers"
+	"github.com/ncarlier/za/pkg/config"
+	"github.com/ncarlier/za/pkg/events"
+	"github.com/ncarlier/za/pkg/logger"
+	"github.com/ncarlier/za/pkg/outputs"
+	"github.com/ncarlier/za/pkg/outputs/loki/logproto"
+	"github.com/ncarlier/za/pkg/serializers"
 )
 
 const maxEntriesChanSize = 5000

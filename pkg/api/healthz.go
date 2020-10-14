@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"github.com/ncarlier/trackr/pkg/config"
+	"github.com/ncarlier/za/pkg/config"
 )
 
 var (

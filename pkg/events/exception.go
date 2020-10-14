@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/mssola/user_agent"
-	"github.com/ncarlier/trackr/pkg/geoip"
-	"github.com/ncarlier/trackr/pkg/helper"
-	"github.com/ncarlier/trackr/pkg/logger"
+	"github.com/ncarlier/za/pkg/geoip"
+	"github.com/ncarlier/za/pkg/helper"
+	"github.com/ncarlier/za/pkg/logger"
 )
 
 // Exception contains tracked attribute when an error is catched
