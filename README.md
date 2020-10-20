@@ -1,5 +1,7 @@
 # ZerØ Analytics
 
+![Logo](zero-analytics.svg)
+
 ZerØ Analytics is a Google Analytics alternative with:
 
 - Zero personal data usage
