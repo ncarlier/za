@@ -3,7 +3,6 @@ package events
 import (
 	"net"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -49,12 +48,8 @@ func (p PageView) FormattedTS() string {
 // Labels returns page view labels
 func (p PageView) Labels() Labels {
 	labels := Labels{
-		"tid":          p.TrackingID,
-		"type":         p.Type(),
-		"hostname":     p.DocumentHostName,
-		"path":         p.DocumentPath,
-		"isNewVisitor": strconv.FormatBool(p.IsNewVisitor),
-		"country":      p.CountryCode,
+		"tid":  p.TrackingID,
+		"type": p.Type(),
 	}
 	// Add tags to labels
 	for k, v := range p.Tags {
