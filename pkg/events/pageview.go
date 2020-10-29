@@ -20,8 +20,8 @@ type PageView struct {
 	DocumentHostName string `json:"hostname"`
 	DocumentPath     string `json:"path"`
 	DocumentReferer  string `json:"referer"`
-	IsNewVisitor     bool   `json:"-"`
-	IsNewSession     bool   `json:"-"`
+	IsNewVisitor     bool   `json:"new_visitor"`
+	IsNewSession     bool   `json:"new_session"`
 }
 
 // HostName returns document hostname without scheme
