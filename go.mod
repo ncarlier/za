@@ -1,6 +1,6 @@
 module github.com/ncarlier/za
 
-go 1.14
+go 1.15
 
 require (
 	github.com/NYTimes/gziphandler v1.1.1
