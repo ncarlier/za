@@ -21,7 +21,7 @@ func Start() {
 	atomic.StoreInt32(&healthy, 1)
 }
 
-func healthzHandler(conf *config.Config) http.Handler {
+func healthzHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if atomic.LoadInt32(&healthy) == 1 {
 			w.WriteHeader(http.StatusNoContent)

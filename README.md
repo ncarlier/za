@@ -1,4 +1,3 @@
-# ZerØ Analytics
 
 ![Logo](zero-analytics.svg)
 
@@ -17,7 +16,7 @@ ZerØ Analytics is a Google Analytics alternative with:
 - JSON or templatized output
 - Track visited pages, uncaught errors and custom events
 - Optional GeoIP support thanks to [DB-IP](https://db-ip.com)
-- Customizable beacon image (1px, badge or image)
+- Customizable beacon image (1px or badge)
 
 ## Installation
 
@@ -62,6 +61,8 @@ geo_ip_database = "./var/dbip-country-lite.mmdb"
 tracking_id = "UA-XXXX-Y"
 ## Only HTTP request from this origin will be collected
 origin = "http://localhost:8000"
+## Badge configuration (<title>|<label>|<color>)
+badge = "zero|analytics|#00a5da"
 
 # Outputs configuration
 [[outputs.file]]
@@ -150,7 +151,7 @@ To start tracking pageviews, copy the following tracking snippet to all pages of
     m=i.getElementsByTagName(o)[0];
     a.async=1; a.src=g; a.id='za-script';
     m.parentNode.insertBefore(a,m)
-  })(document, window, 'script', 'http://localhost:8080/analytics.js', 'za');
+  })(document, window, 'script', 'http://localhost:8080/za.js', 'za');
   za('create', 'UA-XXXX-Y', 'auto');
   za('send', 'pageview');
 </script>
@@ -171,13 +172,13 @@ This alternative async snippet adds support for preloading:
   za('create', 'UA-XXXX-Y', 'auto');
   za('send', 'pageview');
 </script>
-<script async src='http://localhost:8080/analytics.js' id="za-script"></script>
+<script async src='http://localhost:8080/za.js' id="za-script"></script>
 <!-- End Zero Analytics script -->
 ```
 
 ### Tracked event types
 
-The analytics script is able to track 3 kind of event: **page views**, **errors**, and **custom events**:
+The analytics script is able to track 3 kinds of events: **page views**, **errors** and **custom events**:
 
 #### Page views
 
@@ -213,6 +214,28 @@ za('send', 'event', {"foo": "bar"});
 ```
 
 The analytics script will send the event payload to the collector endpoint.
+
+## Badge
+
+ZerØ Analytics is able to create tracked badges, which can easily be included in GitHub readmes or any other web page.
+
+By default the badge will be: ![Using Zero Analytics](badge.svg)
+
+You can customize the badge using the tracker section configuration.
+
+Then you can insert the badge into your web page:
+
+```html
+<!-- Somewere in your site -->
+<img src="http://localhost:8080/badge/UA-XXXX-Y.svg" />
+```
+
+Note that a badge hit will produce a [custom event](#custom-events). This means that you are able to send a JSON base64 encode payload by using query parameters:
+
+```html
+<!-- Somewere in your site -->
+<img src="http://localhost:8080/badge/UA-XXXX-Y.svg?d=eyJmb28iOiJiYXIifQ%3D%3D" />
+```
 
 ***
 

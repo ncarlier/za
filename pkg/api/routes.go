@@ -8,7 +8,7 @@ import (
 )
 
 // HandlerFunc custom function handler
-type HandlerFunc func(conf *config.Config) http.Handler
+type HandlerFunc func(mux *http.ServeMux, conf *config.Config) http.Handler
 
 // Route is the structure of an HTTP route definition
 type Route struct {
@@ -31,14 +31,14 @@ type Routes []Route
 func routes(conf *config.Config) Routes {
 	return Routes{
 		route(
-			"/",
-			infoHandler,
-			middleware.Methods("GET", "POST"),
-		),
-		route(
 			"/collect",
 			collectHandler,
 			middleware.Methods("GET", "POST"),
+		),
+		route(
+			"/badge/",
+			badgeHandler,
+			middleware.Methods("GET"),
 		),
 		route(
 			"/za.js",
@@ -51,14 +51,19 @@ func routes(conf *config.Config) Routes {
 			middleware.Methods("GET"),
 		),
 		route(
+			"/varz",
+			varzHandler,
+			middleware.Methods("GET"),
+		),
+		route(
 			"/healthz",
 			healthzHandler,
 			middleware.Methods("GET"),
 		),
 		route(
-			"/varz",
-			varzHandler,
-			middleware.Methods("GET"),
+			"/",
+			infoHandler,
+			middleware.Methods("GET", "POST"),
 		),
 	}
 }

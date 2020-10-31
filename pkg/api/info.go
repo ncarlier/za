@@ -14,7 +14,7 @@ type Info struct {
 	Version string `json:"version"`
 }
 
-func infoHandler(conf *config.Config) http.Handler {
+func infoHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.Error(w, "not found", http.StatusNotFound)

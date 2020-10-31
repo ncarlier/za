@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/influxdata/toml"
 	"github.com/influxdata/toml/ast"
@@ -37,14 +36,14 @@ func NewConfig() *Config {
 	return c
 }
 
-// ValidateTrackingID validate that origin matches with the tracking ID
-func (c *Config) ValidateTrackingID(origin, trackingID string) bool {
+// GetTracker retrive tracker configuration
+func (c *Config) GetTracker(trackingID string) *Tracker {
 	for _, tracker := range c.Trackers {
-		if strings.HasPrefix(origin, tracker.Origin) && tracker.TrackingID == trackingID {
-			return true
+		if tracker.TrackingID == trackingID {
+			return &tracker
 		}
 	}
-	return false
+	return nil
 }
 
 // LoadConfig loads the given config file and applies it to c
@@ -123,6 +122,14 @@ func (c *Config) addTracker(table *ast.Table) error {
 	tracker := Tracker{}
 	if err := toml.UnmarshalTable(table, &tracker); err != nil {
 		return err
+	}
+
+	if tracker.Badge == "" {
+		tracker.Badge = "ZerØ|analytics|#00a5da"
+	} else {
+		if !validateBadgeSyntaxe(tracker.Badge) {
+			return fmt.Errorf("invalid badge format: expecting \"<title>|<label>|<color>\" got: %s", tracker.Badge)
+		}
 	}
 
 	c.Trackers = append(c.Trackers, tracker)

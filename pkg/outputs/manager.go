@@ -31,6 +31,9 @@ func NewOutputsManager(outputs []Output) (*Manager, error) {
 
 // SendEvent sent event to all outputs
 func (m *Manager) SendEvent(event events.Event) {
+	if event == nil {
+		return
+	}
 	for _, out := range m.outputs {
 		if err := out.SendEvent(event); err != nil {
 			logger.Error.Println("unable to send event to the output:", err)

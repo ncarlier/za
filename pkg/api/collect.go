@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/mssola/user_agent"
 	"github.com/ncarlier/za/pkg/config"
@@ -13,7 +14,7 @@ import (
 	"github.com/ncarlier/za/pkg/outputs"
 )
 
-func collectHandler(conf *config.Config) http.Handler {
+func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 	outputs, err := outputs.NewOutputsManager(conf.Outputs)
 	if err != nil {
 		logger.Error.Fatalf("unable to initialize outputs manager: %s", err)
@@ -26,7 +27,7 @@ func collectHandler(conf *config.Config) http.Handler {
 		// Respect Do Not Track HTTP header
 		if r.Header.Get("DNT") == "1" {
 			// Write GIF beacon as response
-			helper.WriteBeacon(w, "N")
+			helper.WriteGifBeacon(w, "N")
 			return
 		}
 
@@ -47,6 +48,7 @@ func collectHandler(conf *config.Config) http.Handler {
 
 		// Validate HTTP request
 		if !isValidRequest(r) {
+			logger.Debug.Printf("invalid request parameters: %v", r.URL.Query())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -54,20 +56,21 @@ func collectHandler(conf *config.Config) http.Handler {
 		q := r.URL.Query()
 
 		trackingID := q.Get("tid")
-		if !conf.ValidateTrackingID(r.Referer(), trackingID) {
+		eventType := q.Get("t")
+		tracker := conf.GetTracker(trackingID)
+		if tracker == nil || (eventType != "badge" && !strings.HasPrefix(r.Referer(), tracker.Origin)) {
 			logger.Debug.Printf("tracking ID %s doesn't match website origin: %s", trackingID, r.Referer())
-			helper.WriteBeacon(w, "N")
+			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		var event events.Event
-		eventType := q.Get("t")
 		switch eventType {
 		case "pageview":
 			event, err = events.NewPageViewEvent(r, conf.Global.Tags, geoIPDatabase)
 		case "exception":
 			event, err = events.NewExceptionEvent(r, conf.Global.Tags, geoIPDatabase)
-		case "event":
+		case "event", "badge":
 			event, err = events.NewSimpleEvent(r, conf.Global.Tags, geoIPDatabase)
 		default:
 			err = errors.New("event type not yet implemented: " + eventType)
@@ -81,8 +84,13 @@ func collectHandler(conf *config.Config) http.Handler {
 		// Send event to outputs manager
 		outputs.SendEvent(event)
 
-		// Write GIF beacon as response
-		helper.WriteBeacon(w, "P")
+		if eventType == "badge" {
+			// Write badge beacon as response
+			helper.WriteBadgeBeacon(w, "P", tracker.Badge)
+		} else {
+			// Write GIF beacon as response
+			helper.WriteGifBeacon(w, "P")
+		}
 	})
 }
 

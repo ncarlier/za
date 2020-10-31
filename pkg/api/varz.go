@@ -8,7 +8,7 @@ import (
 	"github.com/ncarlier/za/pkg/config"
 )
 
-func varzHandler(conf *config.Config) http.Handler {
+func varzHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, "{\n")

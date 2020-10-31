@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="106" height="20">
+  <linearGradient id="smooth" x2="0" y2="100%">
+    <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+    <stop offset="1" stop-opacity=".1"/>
+  </linearGradient>
+
+  <mask id="round">
+    <rect width="106" height="20" rx="3" fill="#fff"/>
+  </mask>
+
+  <g mask="url(#round)">
+    <rect width="43" height="20" fill="#555"/>
+    <rect x="43" width="63" height="20" fill="#00a5da"/>
+    <rect width="106" height="20" fill="url(#smooth)"/>
+  </g>
+
+  <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+    <text x="22.5" y="15" fill="#010101" fill-opacity=".3">ZerØ</text>
+    <text x="22.5" y="14">ZerØ</text>
+    <text x="73.5" y="15" fill="#010101" fill-opacity=".3">analytics</text>
+    <text x="73.5" y="14">analytics</text>
+  </g>
+</svg>

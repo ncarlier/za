@@ -54,15 +54,17 @@ func NewSimpleEvent(r *http.Request, tags map[string]string, geoipdb *geoip.DB) 
 	ua := user_agent.New(r.UserAgent())
 	browser, _ := ua.Browser()
 
-	d := q.Get("d")
-	// TODO add support to JWT payload
-	data, err := base64.StdEncoding.DecodeString(d)
-	if err != nil {
-		return nil, err
-	}
 	var objmap map[string]interface{}
-	if err = json.Unmarshal(data, &objmap); err != nil {
-		return nil, err
+	d := q.Get("d")
+	if d != "" {
+		// TODO add support to JWT payload
+		data, err := base64.StdEncoding.DecodeString(d)
+		if err != nil {
+			return nil, err
+		}
+		if err = json.Unmarshal(data, &objmap); err != nil {
+			return nil, err
+		}
 	}
 
 	event := SimpleEvent{

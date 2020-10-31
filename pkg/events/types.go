@@ -7,20 +7,30 @@ var Types = newEventTypes()
 
 func newEventTypes() *eventTypes {
 	return &eventTypes{
+		Badge:     "badge",
 		Event:     "event",
-		PageView:  "pageview",
 		Exception: "exception",
+		PageView:  "pageview",
 	}
 }
 
 type eventTypes struct {
+	Badge     string
 	Event     string
-	PageView  string
 	Exception string
+	PageView  string
 }
 
 func (t *eventTypes) IsValid(name string) bool {
-	return name == t.Event || name == t.Exception || name == t.PageView
+	switch name {
+	case
+		t.Badge,
+		t.Event,
+		t.Exception,
+		t.PageView:
+		return true
+	}
+	return false
 }
 
 // BaseEvent contains common events fields

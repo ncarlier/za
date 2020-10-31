@@ -10,7 +10,7 @@ import (
 var commonMiddlewares = []middleware.Middleware{
 	middleware.Gzip,
 	middleware.Cors("*"),
-	middleware.Logger("/healthz"),
+	middleware.Logger("/healthz", "/badge"),
 }
 
 // NewRouter creates router with declared routes
@@ -21,7 +21,7 @@ func NewRouter(conf *config.Config) *http.ServeMux {
 
 	// Register HTTP routes...
 	for _, route := range routes(conf) {
-		handler := route.HandlerFunc(conf)
+		handler := route.HandlerFunc(router, conf)
 		for _, mw := range route.Middlewares {
 			handler = mw(handler)
 		}

@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"path"
 	"time"
 
 	"github.com/ncarlier/za/pkg/logger"
@@ -21,7 +22,11 @@ func Logger(exceptions ...string) Middleware {
 	}
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if _, ignore := except[r.URL.Path]; !ignore {
+			key := r.URL.Path
+			if path.Dir(key) != "/" {
+				key = path.Dir(key)
+			}
+			if _, ignore := except[key]; !ignore {
 				start := time.Now()
 				defer func() {
 					logger.Info.Println(r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), time.Since(start))
