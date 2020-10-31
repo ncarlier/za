@@ -18,6 +18,10 @@ ZerØ Analytics is a Google Analytics alternative with:
 - Optional GeoIP support thanks to [DB-IP](https://db-ip.com)
 - Customizable beacon image (1px or badge)
 
+Here an example of what you can get using Grafana with Loki:
+
+![Sample Grafana dashboard](grafana.png)
+
 ## Installation
 
 By compiling from sources:
@@ -76,7 +80,7 @@ A complete and documented example can be found [here](./etc/zero-analytics.examp
 
 ## Outputs
 
-ZerØ Analytics is able to format and write collected events to many outputs:
+ZerØ Analytics is able to format and write collected events to multiple outputs:
 
 ### File
 
