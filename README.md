@@ -1,6 +1,12 @@
 
 ![Logo](zero-analytics.svg)
 
+[![Build Status](https://travis-ci.org/ncarlier/za.svg?branch=master)](https://travis-ci.org/ncarlier/za)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ncarlier/za)](https://goreportcard.com/report/github.com/ncarlier/za)
+[![Docker pulls](https://img.shields.io/docker/pulls/ncarlier/za.svg)](https://hub.docker.com/r/ncarlier/za/)
+[![Zero Analytics](https://monitoring.nunux.org/usage/badge/za.svg)](https://github.com/ncarlier/za)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/nunux)
+
 ZerØ Analytics is a Google Analytics alternative with:
 
 - Zero personal data usage
