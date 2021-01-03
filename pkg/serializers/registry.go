@@ -21,6 +21,8 @@ type Serializer interface {
 	// separate metrics should be separated by a newline, and there should be
 	// a newline at the end of the buffer.
 	Serialize(event events.Event) ([]byte, error)
+	// ContentType returns content-type used by the serializer
+	ContentType() string
 }
 
 // Config is a struct that covers the data types needed for all serializer types,

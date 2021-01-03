@@ -40,3 +40,19 @@ origin = "http://localhost:8000"
 #  batch_size = 10
 #  ## Batch interval
 #  batch_interval = "10s"
+
+# HTTP output configuration
+#[[outputs.http]]
+#  ## URL is the address to send events to
+#  url = "http://127.0.0.1:8080/"
+#  ## Timeout for HTTP message
+#  # timeout = "5s"
+#  ## HTTP method, one of: "POST" or "PUT"
+#  # method = "POST"
+#  ## HTTP Basic Auth credentials
+#  # username = "username"
+#  # password = "pa$$word"
+#  ## Compress body request using GZIP
+#  # gzip = true
+#  ## Data format to output.
+#  data_format = "json"

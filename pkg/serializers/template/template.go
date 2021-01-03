@@ -44,3 +44,7 @@ func (s *serializer) Serialize(event events.Event) ([]byte, error) {
 
 	return serialized.Bytes(), nil
 }
+
+func (s *serializer) ContentType() string {
+	return "text/plain; charset=utf-8"
+}

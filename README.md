@@ -98,6 +98,25 @@ This output is usefull if you want to process events by an external toolchain.
   files = ["/tmp/events.log"]
 ```
 
+### HTTP
+
+This output is usefull if you want to process events by an external service.
+
+```toml
+[[outputs.http]]
+  ## URL is the address to send events to
+  url = "http://localhost:8081"
+  ## Timeout for HTTP message
+  timeout = "2s"
+  ## HTTP method, one of: "POST" or "PUT"
+  method = "POST"
+  ## HTTP Basic Auth credentials
+  #  username = "username"
+  #  password = "pa$$word"
+  ## Compress body request using GZIP
+  gzip = true
+```
+
 ### Loki
 
 *[Loki](https://grafana.com/oss/loki/) is a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus.*
@@ -117,7 +136,7 @@ This output is usefull if you want to process events by an external toolchain.
 #### Data format
 
 Some outputs are able to send formated events.
-This is the case for `Loki` And `File`.
+This is the case for `Loki`, `HTTP, `And `File`.
 By default they format the event data  as `JSON`:
 
 ```json

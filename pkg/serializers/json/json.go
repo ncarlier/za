@@ -24,3 +24,7 @@ func (s *serializer) Serialize(event events.Event) ([]byte, error) {
 
 	return serialized, nil
 }
+
+func (s *serializer) ContentType() string {
+	return "application/json; charset=utf-8"
+}
