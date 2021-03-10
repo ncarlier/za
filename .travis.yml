@@ -1,6 +1,6 @@
 language: go
 go:
-- '1.15'
+- '1.16'
 script:
 - make test
 - make distribution
@@ -13,6 +13,7 @@ deploy:
   - release/za-linux-arm64.tgz
   - release/za-linux-arm.tgz
   - release/za-darwin-amd64.tgz
+  skip_cleanup: true
   on:
     repo: ncarlier/za
     tags: true

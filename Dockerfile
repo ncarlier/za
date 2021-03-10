@@ -1,7 +1,7 @@
 #########################################
 # Build stage
 #########################################
-FROM golang:1.15 AS builder
+FROM golang:1.16 AS builder
 
 # Repository location
 ARG REPOSITORY=github.com/ncarlier
@@ -30,7 +30,7 @@ ARG REPOSITORY=github.com/ncarlier
 ARG ARTIFACT=za
 
 # Install binary
-COPY --from=builder /go/src/$REPOSITORY/$ARTIFACT/release/$ARTIFACT /usr/local/bin/$ARTIFACT
+COPY --from=builder /go/src/$REPOSITORY/$ARTIFACT/release/$ARTIFACT /usr/local/bin/$ARTIFAC6
 
 # Exposed ports
 EXPOSE 8080 9213

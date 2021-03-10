@@ -42,21 +42,15 @@ include $(makefiles)/docker/compose.Makefile
 ## Clean built files
 clean:
 	-rm -rf release
-	-rm assets/za.min.js pkg/assets/statik.go
+	-rm pkg/assets/za.min.js
 .PHONY: clean
 
 # Build minified JS
-assets/za.min.js:
+pkg/assets/za.min.js:
 	npm run minify
 
-# Build assets as Go file
-pkg/assets/statik.go: assets/za.min.js
-	echo ">>> Generating \"pkg/assets/statik.go\" ..."
-	go get -u github.com/rakyll/statik
-	statik -p assets -src assets -dest pkg -f
-
 ## Build executable
-build: pkg/assets/statik.go
+build: pkg/assets/za.min.js
 	-mkdir -p release
 	echo ">>> Building: $(EXECUTABLE) $(VERSION) for $(GOOS)-$(GOARCH) ..."
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags "$(LDFLAGS)" -o release/$(EXECUTABLE)
