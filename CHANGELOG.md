@@ -1,5 +1,15 @@
 <a name="1.0.0"></a>
-# [1.0.0](https://github.com/ncarlier/za/compare/v1.1.0...v1.0.0) (2021-03-10)
+# [1.0.0](https://github.com/ncarlier/za/compare/v1.1.1...v1.0.0) (2021-03-23)
+
+
+
+<a name="1.1.1"></a>
+## [1.1.1](https://github.com/ncarlier/za/compare/v1.1.0...v1.1.1) (2021-03-23)
+
+
+### Bug Fixes
+
+* fix Docker image ([356f0ed](https://github.com/ncarlier/za/commit/356f0ed))
 
 
 
