@@ -3,14 +3,8 @@ package events
 import (
 	"encoding/base64"
 	"encoding/json"
-	"net"
 	"net/http"
 	"time"
-
-	"github.com/mssola/user_agent"
-	"github.com/ncarlier/za/pkg/geoip"
-	"github.com/ncarlier/za/pkg/helper"
-	"github.com/ncarlier/za/pkg/logger"
 )
 
 // SimpleEvent contains tracked attribute for a simple event
@@ -26,33 +20,24 @@ func (se SimpleEvent) Type() string {
 
 // TS returns timestamp
 func (se SimpleEvent) TS() time.Time {
-	return se.Timestamp
+	return se.BaseEvent.TS()
 }
 
 // FormattedTS returns formatted timestamp
 func (se SimpleEvent) FormattedTS() string {
-	return se.Timestamp.Format("02/Jan/2006 03:04:05")
+	return se.BaseEvent.FormattedTS()
 }
 
 // Labels returns exception labels
 func (se SimpleEvent) Labels() Labels {
-	labels := Labels{
-		"tid":  se.TrackingID,
-		"type": se.Type(),
-	}
-	// Add tags to labels
-	for k, v := range se.Tags {
-		labels[k] = v
-	}
-
+	labels := se.BaseEvent.Labels()
+	labels["type"] = se.Type()
 	return labels
 }
 
 // NewSimpleEvent create simple event from HTTP request
-func NewSimpleEvent(r *http.Request, tags map[string]string, geoipdb *geoip.DB) (Event, error) {
+func NewSimpleEvent(base BaseEvent, r *http.Request) (Event, error) {
 	q := r.URL.Query()
-	ua := user_agent.New(r.UserAgent())
-	browser, _ := ua.Browser()
 
 	var objmap map[string]interface{}
 	d := q.Get("d")
@@ -68,25 +53,8 @@ func NewSimpleEvent(r *http.Request, tags map[string]string, geoipdb *geoip.DB) 
 	}
 
 	event := SimpleEvent{
-		BaseEvent: BaseEvent{
-			TrackingID: q.Get("tid"),
-			ClientIP:   helper.ParseClientIP(r),
-			UserAgent:  ua.UA(),
-			Browser:    browser,
-			OS:         ua.OS(),
-			Tags:       tags,
-			Timestamp:  time.Now(),
-		},
-		Payload: objmap,
-	}
-	if geoipdb != nil {
-		if ip := net.ParseIP(event.ClientIP); ip != nil {
-			if cc, err := geoipdb.LookupCountry(ip); err != nil {
-				logger.Warning.Printf("unable to retrieve IP country code: %v", err)
-			} else {
-				event.CountryCode = cc
-			}
-		}
+		BaseEvent: base,
+		Payload:   objmap,
 	}
 	return event, nil
 }

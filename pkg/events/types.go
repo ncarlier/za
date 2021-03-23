@@ -33,18 +33,6 @@ func (t *eventTypes) IsValid(name string) bool {
 	return false
 }
 
-// BaseEvent contains common events fields
-type BaseEvent struct {
-	TrackingID  string            `json:"tid"`
-	ClientIP    string            `json:"-"`
-	CountryCode string            `json:"country,omitempty"`
-	UserAgent   string            `json:"-"`
-	Browser     string            `json:"browser"`
-	OS          string            `json:"os"`
-	Tags        map[string]string `json:"tags"`
-	Timestamp   time.Time         `json:"timestamp"`
-}
-
 // Event is the generic interface for a tracking event
 type Event interface {
 	// Type returns event type

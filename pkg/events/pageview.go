@@ -1,15 +1,11 @@
 package events
 
 import (
-	"net"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/mssola/user_agent"
-	"github.com/ncarlier/za/pkg/geoip"
 	"github.com/ncarlier/za/pkg/helper"
-	"github.com/ncarlier/za/pkg/logger"
 )
 
 // PageView contains tracked attribute when a page is viewed
@@ -37,44 +33,27 @@ func (p PageView) Type() string {
 
 // TS returns timestamp
 func (p PageView) TS() time.Time {
-	return p.Timestamp
+	return p.BaseEvent.TS()
 }
 
 // FormattedTS returns formatted timestamp
 func (p PageView) FormattedTS() string {
-	return p.Timestamp.Format("02/Jan/2006 03:04:05")
+	return p.BaseEvent.FormattedTS()
 }
 
 // Labels returns page view labels
 func (p PageView) Labels() Labels {
-	labels := Labels{
-		"tid":  p.TrackingID,
-		"type": p.Type(),
-	}
-	// Add tags to labels
-	for k, v := range p.Tags {
-		labels[k] = v
-	}
-
+	labels := p.BaseEvent.Labels()
+	labels["type"] = p.Type()
 	return labels
 }
 
 // NewPageViewEvent create page view event from HTTP request
-func NewPageViewEvent(r *http.Request, tags map[string]string, geoipdb *geoip.DB) (Event, error) {
+func NewPageViewEvent(base BaseEvent, r *http.Request) (Event, error) {
 	q := r.URL.Query()
-	ua := user_agent.New(r.UserAgent())
-	browser, _ := ua.Browser()
 
 	pageview := PageView{
-		BaseEvent: BaseEvent{
-			TrackingID: q.Get("tid"),
-			ClientIP:   helper.ParseClientIP(r),
-			UserAgent:  ua.UA(),
-			Browser:    browser,
-			OS:         ua.OS(),
-			Tags:       tags,
-			Timestamp:  time.Now(),
-		},
+		BaseEvent:        base,
 		Protocol:         r.Proto,
 		UserLanguage:     q.Get("ul"),
 		DocumentHostName: helper.ParseHostname(q.Get("dh")),
@@ -82,15 +61,6 @@ func NewPageViewEvent(r *http.Request, tags map[string]string, geoipdb *geoip.DB
 		DocumentReferer:  q.Get("dr"),
 		IsNewVisitor:     q.Get("nv") == "1",
 		IsNewSession:     q.Get("ns") == "1",
-	}
-	if geoipdb != nil {
-		if ip := net.ParseIP(pageview.ClientIP); ip != nil {
-			if cc, err := geoipdb.LookupCountry(ip); err != nil {
-				logger.Warning.Printf("unable to retrieve IP country code: %v", err)
-			} else {
-				pageview.CountryCode = cc
-			}
-		}
 	}
 	return pageview, nil
 }

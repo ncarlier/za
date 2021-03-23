@@ -64,14 +64,18 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 			return
 		}
 
+		// Create base event
+		base := events.NewBaseEvent(r, conf.Global.Tags, geoIPDatabase)
+
+		// Specialize event
 		var event events.Event
 		switch eventType {
 		case "pageview":
-			event, err = events.NewPageViewEvent(r, conf.Global.Tags, geoIPDatabase)
+			event, err = events.NewPageViewEvent(base, r)
 		case "exception":
-			event, err = events.NewExceptionEvent(r, conf.Global.Tags, geoIPDatabase)
+			event, err = events.NewExceptionEvent(base, r)
 		case "event", "badge":
-			event, err = events.NewSimpleEvent(r, conf.Global.Tags, geoIPDatabase)
+			event, err = events.NewSimpleEvent(base, r)
 		default:
 			err = errors.New("event type not yet implemented: " + eventType)
 		}
