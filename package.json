@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "minify": "terser assets/za.js -c -m -o assets/za.min.js"
+    "minify": "terser pkg/assets/za.js -c -m -o pkg/assets/za.min.js"
   },
   "author": "",
   "license": "ISC",
