@@ -15,6 +15,7 @@
 ## Tracking ID
 tracking_id = "UA-XXXX-Y"
 ## Only HTTP request from this origin will be collected
+## Supports '*' as wildcard. Ex: "*", "http://*.example.com", ...
 origin = "http://localhost:8000"
 ## Badge configuration (<title>|<label>|<color>)
 #badge = "zero|analytics|#00a5da"

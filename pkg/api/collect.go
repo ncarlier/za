@@ -3,7 +3,6 @@ package api
 import (
 	"errors"
 	"net/http"
-	"strings"
 
 	"github.com/mssola/user_agent"
 	"github.com/ncarlier/za/pkg/config"
@@ -58,7 +57,7 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 		trackingID := q.Get("tid")
 		eventType := q.Get("t")
 		tracker := conf.GetTracker(trackingID)
-		if tracker == nil || (eventType != "badge" && !strings.HasPrefix(r.Referer(), tracker.Origin)) {
+		if tracker == nil || (eventType != "badge" && !helper.Match(tracker.Origin, r.Referer())) {
 			logger.Debug.Printf("tracking ID %s doesn't match website origin: %s", trackingID, r.Referer())
 			w.WriteHeader(http.StatusBadRequest)
 			return
