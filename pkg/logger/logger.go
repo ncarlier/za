@@ -47,3 +47,7 @@ func Init(level string) {
 	Warning = log.New(warnHandle, "WRN ", commonFlags)
 	Error = log.New(errorHandle, "ERR ", commonFlags)
 }
+
+func init() {
+	Init("debug")
+}
