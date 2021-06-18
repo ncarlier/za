@@ -1,7 +1,7 @@
 
 ![Logo](zero-analytics.svg)
 
-[![Build Status](https://travis-ci.org/ncarlier/za.svg?branch=master)](https://travis-ci.org/ncarlier/za)
+[![Build Status](https://github.com/ncarlier/za/actions/workflows/build.yml/badge.svg)](https://github.com/ncarlier/za/actions/workflows/build.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ncarlier/za)](https://goreportcard.com/report/github.com/ncarlier/za)
 [![Docker pulls](https://img.shields.io/docker/pulls/ncarlier/za.svg)](https://hub.docker.com/r/ncarlier/za/)
 [![Zero Analytics](https://monitoring.nunux.org/usage/badge/za.svg)](https://github.com/ncarlier/za)
@@ -136,7 +136,7 @@ This output is usefull if you want to process events by an external service.
 #### Data format
 
 Some outputs are able to send formated events.
-This is the case for `Loki`, `HTTP, `And `File`.
+This is the case for `Loki`, `HTTP`, and `File`.
 By default they format the event data  as `JSON`:
 
 ```json
