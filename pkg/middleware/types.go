@@ -5,4 +5,4 @@ import (
 )
 
 // Middleware function definition
-type Middleware func(inner http.Handler) http.Handler
+type Middleware func(next http.Handler) http.Handler

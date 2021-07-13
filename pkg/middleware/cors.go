@@ -23,7 +23,6 @@ func Cors(allowOrigin string) Middleware {
 			if r.Method != "OPTIONS" {
 				next.ServeHTTP(w, r)
 			}
-			return
 		})
 	}
 }

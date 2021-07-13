@@ -1,38 +1,67 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
-	"path"
+	"strings"
 	"time"
 
 	"github.com/ncarlier/za/pkg/logger"
 )
 
-type key int
-
-const (
-	requestIDKey key = 0
-)
-
 // Logger is a middleware to log HTTP request
-func Logger(exceptions ...string) Middleware {
-	except := make(map[string]bool)
-	for _, path := range exceptions {
-		except[path] = true
+func Logger(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		o := &responseObserver{ResponseWriter: w}
+		start := time.Now()
+		defer func() {
+			addr := r.RemoteAddr
+			if i := strings.LastIndex(addr, ":"); i != -1 {
+				addr = addr[:i]
+			}
+			logger.Info.Printf(
+				"%s - - [%s] %q %d %d %q %q",
+				addr,
+				start.Format("02/Jan/2006:15:04:05 -0700"),
+				fmt.Sprintf("%s %s %s", r.Method, r.URL, r.Proto),
+				o.status,
+				o.written,
+				r.Referer(),
+				r.UserAgent(),
+			)
+		}()
+		next.ServeHTTP(o, r)
+	})
+}
+
+type responseObserver struct {
+	http.ResponseWriter
+	status      int
+	written     int64
+	wroteHeader bool
+}
+
+func (o *responseObserver) Write(p []byte) (n int, err error) {
+	if !o.wroteHeader {
+		o.WriteHeader(http.StatusOK)
 	}
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			key := r.URL.Path
-			if path.Dir(key) != "/" {
-				key = path.Dir(key)
-			}
-			if _, ignore := except[key]; !ignore {
-				start := time.Now()
-				defer func() {
-					logger.Info.Println(r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent(), time.Since(start))
-				}()
-			}
-			next.ServeHTTP(w, r)
-		})
+	n, err = o.ResponseWriter.Write(p)
+	o.written += int64(n)
+	return
+}
+
+func (o *responseObserver) WriteHeader(code int) {
+	o.ResponseWriter.WriteHeader(code)
+	if o.wroteHeader {
+		return
+	}
+	o.wroteHeader = true
+	o.status = code
+}
+
+func (o *responseObserver) Flush() {
+	flusher, ok := o.ResponseWriter.(http.Flusher)
+	if ok {
+		flusher.Flush()
 	}
 }
