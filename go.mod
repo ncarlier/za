@@ -9,6 +9,7 @@ require (
 	github.com/golang/snappy v0.0.3
 	github.com/influxdata/toml v0.0.0-20190415235208-270119a8ce65
 	github.com/kylelemons/godebug v1.1.0 // indirect
+	github.com/mattn/go-isatty v0.0.13
 	github.com/mssola/user_agent v0.5.2
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/narqo/go-badge v0.0.0-20190124110329-d9415e4e1e9f
