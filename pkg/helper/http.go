@@ -27,7 +27,7 @@ func ParsePathname(s string) string {
 	return "/" + strings.TrimLeft(s, "/")
 }
 
-// ParseHostname extract from an URL
+// ParseHostname extract hostname from an URL
 func ParseHostname(s string) string {
 	u, err := url.Parse(s)
 	if err != nil {

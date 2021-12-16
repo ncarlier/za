@@ -39,7 +39,7 @@ func (ex Exception) Labels() Labels {
 
 // NewExceptionEvent create exception event from HTTP request
 func NewExceptionEvent(base BaseEvent, r *http.Request) (Event, error) {
-	q := r.URL.Query()
+	q := r.Form
 
 	line, err := strconv.Atoi(q.Get("exl"))
 	if err != nil {

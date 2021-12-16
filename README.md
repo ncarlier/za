@@ -21,6 +21,7 @@ ZerØ Analytics is a Google Analytics alternative with:
 - Multiple output support ([Loki](loki), [Elasticsearch](elastic), files, ... )
 - JSON or templatized output
 - Track visited pages, uncaught errors and custom events
+- Optional Time on Page support thanks to [Beacon API][beacon_api]
 - Optional GeoIP support thanks to [DB-IP](https://db-ip.com)
 - Customizable beacon image (1px or badge)
 
@@ -215,12 +216,15 @@ The analytics script is able to track 3 kinds of events: **page views**, **error
 <!-- Zero Analytics script -->
 <script>
   ...
-  za('send', 'pageview');
+  za('send', 'pageview'/*, {top: true}*/);
 </script>
 <!-- End Zero Analytics script -->
 ```
 
 As soon the page is loaded, the analytics script will send page hit to the collector endpoint.
+
+Alternatively you can measure the time spent on a page (Time on Page) by activating the option `Time on Page` (`{top: true}`).
+This will use the [Beacon API](beacon_api) of the browser instead of the usual tracking method.
 
 #### Errors
 
@@ -295,3 +299,4 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 [loki]: https://grafana.com/oss/loki/
 [elastic]: https://www.elastic.co/
+[beacon_api]: https://developer.mozilla.org/en-US/docs/Web/API/Beacon_API

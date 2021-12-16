@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/mssola/user_agent"
@@ -23,10 +24,15 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 		logger.Error.Fatalf("unable to load geo IP database: %s", err)
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		isPost := r.Method == http.MethodPost
 		// Respect Do Not Track HTTP header
 		if r.Header.Get("DNT") == "1" {
-			// Write GIF beacon as response
-			helper.WriteGifBeacon(w, "N")
+			if isPost {
+				w.WriteHeader(http.StatusNoContent)
+			} else {
+				// Write GIF beacon as response
+				helper.WriteGifBeacon(w, "N")
+			}
 			return
 		}
 
@@ -45,17 +51,15 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 			return
 		}
 
-		// Validate HTTP request
-		if !isValidRequest(r) {
-			logger.Debug.Printf("invalid request parameters: %v", r.URL.Query())
+		// Parse HTTP request
+		trackingID, eventType, err := parseRequest(r)
+		if err != nil {
+			logger.Debug.Printf("invalid request: %v", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		q := r.URL.Query()
-
-		trackingID := q.Get("tid")
-		eventType := q.Get("t")
+		// Validate tracker
 		tracker := conf.GetTracker(trackingID)
 		if tracker == nil || (eventType != "badge" && !helper.Match(tracker.Origin, r.Referer())) {
 			logger.Debug.Printf("tracking ID %s doesn't match website origin: %s", trackingID, r.Referer())
@@ -90,6 +94,8 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 		if eventType == "badge" {
 			// Write badge beacon as response
 			helper.WriteBadgeBeacon(w, "P", tracker.Badge)
+		} else if isPost {
+			w.WriteHeader(http.StatusAccepted)
 		} else {
 			// Write GIF beacon as response
 			helper.WriteGifBeacon(w, "P")
@@ -97,10 +103,16 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 	})
 }
 
-func isValidRequest(r *http.Request) bool {
-	// Validate HTTP request
-	q := r.URL.Query()
-	tid := q.Get("tid")
-	t := q.Get("t")
-	return tid != "" && events.Types.IsValid(t)
+func parseRequest(r *http.Request) (trackingID string, eventType string, err error) {
+	r.ParseForm()
+	values := r.Form
+	trackingID = values.Get("tid")
+	eventType = values.Get("t")
+	if trackingID == "" {
+		err = errors.New("tracking ID not provided")
+	}
+	if !events.Types.IsValid(eventType) {
+		err = fmt.Errorf("invalid event type: %s", eventType)
+	}
+	return
 }

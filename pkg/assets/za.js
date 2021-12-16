@@ -55,10 +55,11 @@
     trackers[c].apply(this, args);
   }
 
-  function toQueryString(obj) {
-    return '?' + Object.keys(obj).map(function(k) {
-      return encodeURIComponent(k) + '=' + encodeURIComponent(obj[k]);
-    }).join('&');
+  function toURLSearchParams(obj) {
+    return Object.keys(obj).reduce(function(value, k) {
+      value.append(k, obj[k]);
+      return value;
+    }, new URLSearchParams());
   }
 
   function getData(source) {
@@ -124,7 +125,7 @@
     let img = document.createElement('img');
     img.setAttribute('alt', '');
     img.setAttribute('aria-hidden', 'true');
-    img.src = getTrackerUrl() + toQueryString(q);
+    img.src = getTrackerUrl() + '?' + toURLSearchParams(q).toString();
     img.addEventListener('load', function() {
       // remove image tracker from DOM
       document.body.removeChild(img);
@@ -174,7 +175,8 @@
     writeBeaconImg(q);
   }
 
-  function trackPageView() { 
+  function trackPageView(options = {top: false}) {
+    console.log('options', options); 
     // abort when page is in pre-rendered state
     if ('visibilityState' in document && document.visibilityState === 'prerender') {
       return;
@@ -220,7 +222,16 @@
       ns: isNewSession() ? 1 : 0,
       z: Date.now(), // Cache buster
     };
-    writeBeaconImg(q);
+    if (options.top && 'sendBeacon' in navigator) {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          q.top = Date.now() - q.z;
+          navigator.sendBeacon(getTrackerUrl(), toURLSearchParams(q));
+        }
+      });
+    } else {
+      writeBeaconImg(q);
+    }
   }
 
   // define za global function

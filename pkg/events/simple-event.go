@@ -37,7 +37,7 @@ func (se SimpleEvent) Labels() Labels {
 
 // NewSimpleEvent create simple event from HTTP request
 func NewSimpleEvent(base BaseEvent, r *http.Request) (Event, error) {
-	q := r.URL.Query()
+	q := r.Form
 
 	var objmap map[string]interface{}
 	d := q.Get("d")

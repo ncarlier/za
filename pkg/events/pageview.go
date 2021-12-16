@@ -18,6 +18,7 @@ type PageView struct {
 	DocumentReferer  string `json:"referer"`
 	IsNewVisitor     bool   `json:"new_visitor"`
 	IsNewSession     bool   `json:"new_session"`
+	TimeOnPage       int    `json:"top"`
 }
 
 // HostName returns document hostname without scheme
@@ -50,7 +51,7 @@ func (p PageView) Labels() Labels {
 
 // NewPageViewEvent create page view event from HTTP request
 func NewPageViewEvent(base BaseEvent, r *http.Request) (Event, error) {
-	q := r.URL.Query()
+	q := r.Form
 
 	pageview := PageView{
 		BaseEvent:        base,
@@ -61,6 +62,7 @@ func NewPageViewEvent(base BaseEvent, r *http.Request) (Event, error) {
 		DocumentReferer:  q.Get("dr"),
 		IsNewVisitor:     q.Get("nv") == "1",
 		IsNewSession:     q.Get("ns") == "1",
+		TimeOnPage:       helper.ParseInt(q.Get("top"), 0),
 	}
 	return pageview, nil
 }

@@ -28,15 +28,15 @@ tracking_id = "UA-XXXX-Y"
 #   ## Expiration interval for each metric. 0 == no expiration
 #   # expiration_interval = "60s"
 
-[[outputs.loki]]
+#[[outputs.loki]]
   ## Loki URL
-  url = "http://localhost:3100"
+#  url = "http://localhost:3100"
   ## Timeout
-  timeout = "2s"
+#  timeout = "2s"
   ## Batch size
-  batch_size = 10
+#  batch_size = 10
   ## Batch interval
-  batch_interval = "10s"
+#  batch_interval = "10s"
 
 #[[outputs.http]]
 #  ## URL is the address to send events to
