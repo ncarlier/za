@@ -25,7 +25,7 @@ ZerØ Analytics is a Google Analytics alternative with:
 - Optional GeoIP support thanks to [DB-IP](https://db-ip.com)
 - Customizable beacon image (1px or badge)
 
-Here an example of what you can get using Grafana with Loki:
+Here an [example](./dashboard/grafana-loki_example.json) of what you can get using Grafana with Loki:
 
 ![Sample Grafana dashboard](grafana.png)
 
