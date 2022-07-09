@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Exception contains tracked attribute when an error is catched
+// Exception contains tracked attribute when an error is triggered
 type Exception struct {
 	BaseEvent
 	Message string `json:"msg"`
@@ -21,6 +21,7 @@ func (ex Exception) Type() string {
 	return Types.Exception
 }
 
+// TS returns timestamp
 func (ex Exception) TS() time.Time {
 	return ex.BaseEvent.TS()
 }

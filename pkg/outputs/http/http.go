@@ -168,6 +168,9 @@ func (h *HTTP) send(reqBody []byte) error {
 	}
 	defer resp.Body.Close()
 	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("bad status code (%d) when writing to [%s]", resp.StatusCode, h.URL)

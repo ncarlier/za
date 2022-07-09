@@ -56,7 +56,7 @@ func (c *Client) Send(streams []*logproto.Stream) (err error) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		retry := false
+		var retry bool
 		for {
 			retry, err = c.send(ctx, payload)
 			if err == nil || !retry || b.Attempt() >= maxBackoffRetry {

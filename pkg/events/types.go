@@ -7,7 +7,7 @@ var Types = newEventTypes()
 
 func newEventTypes() *eventTypes {
 	return &eventTypes{
-		Badge:     "badge",
+		Badge:     "badge", // event alias
 		Event:     "event",
 		Exception: "exception",
 		PageView:  "pageview",
