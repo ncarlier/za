@@ -3,9 +3,9 @@ package middleware
 import (
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
+	"github.com/ncarlier/za/pkg/helper"
 	"github.com/ncarlier/za/pkg/logger"
 )
 
@@ -15,13 +15,9 @@ func Logger(next http.Handler) http.Handler {
 		o := &responseObserver{ResponseWriter: w}
 		start := time.Now()
 		defer func() {
-			addr := r.RemoteAddr
-			if i := strings.LastIndex(addr, ":"); i != -1 {
-				addr = addr[:i]
-			}
 			logger.Info.Printf(
 				"%s - - [%s] %q %d %d %q %q",
-				addr,
+				helper.ParseClientIP(r),
 				start.Format("02/Jan/2006:15:04:05 -0700"),
 				fmt.Sprintf("%s %s %s", r.Method, r.URL, r.Proto),
 				o.status,
