@@ -24,15 +24,8 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 		logger.Error.Fatalf("unable to load geo IP database: %s", err)
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isPost := r.Method == http.MethodPost
 		// Respect Do Not Track HTTP header
-		if r.Header.Get("DNT") == "1" {
-			if isPost {
-				w.WriteHeader(http.StatusNoContent)
-			} else {
-				// Write GIF beacon as response
-				helper.WriteGifBeacon(w, "N")
-			}
+		if handleDoNotTrackRequest(r, w) {
 			return
 		}
 
@@ -91,16 +84,37 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 		// Send event to outputs manager
 		outputs.SendEvent(event)
 
-		if eventType == "badge" {
-			// Write badge beacon as response
-			helper.WriteBadgeBeacon(w, "P", tracker.Badge)
-		} else if isPost {
-			w.WriteHeader(http.StatusAccepted)
+		// Build response according to the event and the request
+		buildResponse(r, w, tracker, event)
+	})
+}
+
+func buildResponse(r *http.Request, w http.ResponseWriter, tracker *config.Tracker, event events.Event) {
+	values := r.Form
+	if values.Get("t") == "badge" {
+		// Write badge beacon as response
+		helper.WriteBadgeBeacon(w, "P", tracker.Badge)
+	} else if r.Method == http.MethodPost {
+		// Write empty response
+		w.WriteHeader(http.StatusAccepted)
+	} else {
+		// Write GIF beacon as response
+		helper.WriteGifBeacon(w, "P")
+	}
+}
+
+func handleDoNotTrackRequest(r *http.Request, w http.ResponseWriter) bool {
+	if r.Header.Get("DNT") == "1" {
+		if r.Method == http.MethodPost {
+			// Write empty response
+			w.WriteHeader(http.StatusNoContent)
 		} else {
 			// Write GIF beacon as response
-			helper.WriteGifBeacon(w, "P")
+			helper.WriteGifBeacon(w, "N")
 		}
-	})
+		return true
+	}
+	return false
 }
 
 func parseRequest(r *http.Request) (trackingID string, eventType string, err error) {

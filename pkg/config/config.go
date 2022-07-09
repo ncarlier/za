@@ -64,55 +64,64 @@ func (c *Config) LoadConfig(path string) error {
 	}
 
 	// Parse global table:
-	if val, ok := tbl.Fields["global"]; ok {
-		subTable, ok := val.(*ast.Table)
-		if !ok {
-			return fmt.Errorf("invalid configuration, error parsing global table")
-		}
-		if err = toml.UnmarshalTable(subTable, &c.Global); err != nil {
-			return fmt.Errorf("error parsing global table: %w", err)
-		}
+	if err = c.parseGlobalTable(tbl); err != nil {
+		return err
 	}
 
 	// Parse trackers table:
+	if err = c.parseTrackersTable(tbl); err != nil {
+		return err
+	}
+
+	// Parse outputs table:
+	return c.parseOutputsTable(tbl)
+}
+
+func (c *Config) parseOutputsTable(tbl *ast.Table) error {
+	if val, ok := tbl.Fields["outputs"]; ok {
+		subTable, ok := val.(*ast.Table)
+		if !ok {
+			return fmt.Errorf("invalid configuration, error parsing outputs table")
+		}
+		for pluginName, pluginVal := range subTable.Fields {
+			switch pluginSubTable := pluginVal.(type) {
+			case []*ast.Table:
+				for _, t := range pluginSubTable {
+					if err := c.addOutput(pluginName, t); err != nil {
+						return fmt.Errorf("error parsing %s array, %s", pluginName, err)
+					}
+				}
+			default:
+				return fmt.Errorf("unsupported output config format: %s", pluginName)
+			}
+		}
+	}
+	return nil
+}
+
+func (c *Config) parseTrackersTable(tbl *ast.Table) error {
 	if val, ok := tbl.Fields["trackers"]; ok {
 		subTable, ok := val.([]*ast.Table)
 		if !ok {
 			return fmt.Errorf("invalid configuration, error parsing trackers table")
 		}
 		for _, trackerTable := range subTable {
-			if err = c.addTracker(trackerTable); err != nil {
-				return fmt.Errorf("Error parsing trackers array, %s", err)
+			if err := c.addTracker(trackerTable); err != nil {
+				return fmt.Errorf("error parsing trackers array, %s", err)
 			}
 		}
-		delete(tbl.Fields, "trackers")
 	}
+	return nil
+}
 
-	// Parse rest
-	for name, val := range tbl.Fields {
+func (c *Config) parseGlobalTable(tbl *ast.Table) error {
+	if val, ok := tbl.Fields["global"]; ok {
 		subTable, ok := val.(*ast.Table)
 		if !ok {
-			return fmt.Errorf("invalid configuration, error parsing field %q as table", name)
+			return fmt.Errorf("invalid configuration, error parsing global table")
 		}
-
-		switch name {
-		case "global":
-		case "outputs":
-			for pluginName, pluginVal := range subTable.Fields {
-				switch pluginSubTable := pluginVal.(type) {
-				case []*ast.Table:
-					for _, t := range pluginSubTable {
-						if err = c.addOutput(pluginName, t); err != nil {
-							return fmt.Errorf("Error parsing %s array, %s", pluginName, err)
-						}
-					}
-				default:
-					return fmt.Errorf("Unsupported config format: %s",
-						pluginName)
-				}
-			}
-		default:
-			return fmt.Errorf("Error parsing %s, %s", name, err)
+		if err := toml.UnmarshalTable(subTable, &c.Global); err != nil {
+			return fmt.Errorf("error parsing global table: %w", err)
 		}
 	}
 	return nil
@@ -139,7 +148,7 @@ func (c *Config) addTracker(table *ast.Table) error {
 func (c *Config) addOutput(name string, table *ast.Table) error {
 	creator, ok := outputs.Outputs[name]
 	if !ok {
-		return fmt.Errorf("Undefined but requested output: %s", name)
+		return fmt.Errorf("undefined but requested output: %s", name)
 	}
 	output := creator()
 
