@@ -13,6 +13,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "terser": "^4.8.0"
+    "terser": "^4.8.1"
   }
 }
