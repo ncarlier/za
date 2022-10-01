@@ -197,7 +197,7 @@
     // get canonical URL
     loc = getCanonicalURL(loc);
     // get document path
-    let dp = loc.pathname + loc.search;
+    let dp = loc.pathname; // + loc.search;
     if (!dp) {
       dp = '/';
     }
