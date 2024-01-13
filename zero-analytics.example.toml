@@ -1,0 +1,37 @@
+# ZerØ Analytics example configuration file
+
+[log]
+## Log level
+level = "${ZA_LOG_LEVEL}"
+## Log format
+format = "${ZA_LOG_FORMAT}"
+## Log modules
+modules = "${ZA_LOG_MODULES}"
+
+[http]
+## HTTP listen address
+listen_addr = "${ZA_HTTP_LISTEN_ADDR}"
+
+[geo-ip]
+## Geo IP database
+database = "./var/dbip-country-lite.mmdb"
+
+[global]
+# Global tags can be specified here in key="value" format.
+[global.tags]
+  dc = "eu-west-1"
+  user = "$USER"
+
+[[trackers]]
+  origin = "http://localhost:9000"
+  tracking_id = "UA-XXXX-Y"
+  [trackers.rate_limiting]
+    provider = "memory"
+    tokens = 5
+    interval = "1m"
+
+[[outputs.file]]
+  ## Files to write to, "stdout" is a specially handled file.
+  files = ["stdout"]
+  ## Data format to output.
+  data_format = "json"

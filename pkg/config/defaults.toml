@@ -8,87 +8,91 @@
 # for numbers and booleans they should be plain (ie, ${INT_VAR}, ${BOOL_VAR})
 
 [log]
-## Log level
-# Values: "debug", "info", "warn" or "error"
-# Default: "info"
+## Log level. Default is "info".
+## Values: "debug", "info", "warn" or "error"
 level = "${ZA_LOG_LEVEL}"
-## Log format
+## Log format. Default is "json".
 # Values: "json" or "text"
-# Default: "json"
 format = "${ZA_LOG_FORMAT}"
-## Log modules
-# Values: http
-# Default: none
+## Log modules.
+# Values: "http" (for logging HTTp request)
 modules = "${ZA_LOG_MODULES}"
 
 [http]
-## HTTP listen address
-# Default: ":8080"
-# Examples: "localhost:8080" or ":8080" for all interfaces 
+## HTTP listen address. Default is ":8080".
+## Examples: "localhost:8080" or ":8080" for all interfaces 
 listen_addr = "${ZA_HTTP_LISTEN_ADDR}"
 
 [geo-ip]
-## Geo IP database
-# Default: none
-# Example: "./var/dbip-country-lite.mmdb"
+## GeoIP database location. GeoIP is disabled if not set.
+## Example: "./var/dbip-country-lite.mmdb"
 database = "${ZA_GEO_IP_DATABASE}"
 
 [global]
-## Global tags
-# Default: none
-[global.tags]
-  #dc = "eu-west-1" # will tag all metrics with dc=us-east-1
-  ## Environment variables can be used as tags, and throughout the config file
-  #user = "$USER"
+## Global tags can be specified here in key="value" format.
+#  [global.tags]
+#    dc = "eu-west-1" # will tag all metrics with dc=us-east-1
+#    ## Environment variables can be used as tags, and throughout the config file
+#    user = "$USER"
 
-## Trackers
+## List of trackers
 [[trackers]]
-  origin = "http://localhost:8000"
+  ## Tracking ID
   tracking_id = "UA-XXXX-Y"
-  [trackers.tags]
-    foo = "bar"
+  ## Only HTTP request from this origin will be collected
+  ## Supports '*' as wildcard. Ex: "*", "http://*.example.com", ...
+  origin = "http://localhost:8000"
+#  ## Badge configuration (<title>|<label>|<color>)
+#  badge = "zero|analytics|#00a5da"
+  ## Tracker usage limitation
   [trackers.rate_limiting]
+    ## Rate limiting provider. Disabled if not set.
+    ## Values: "memory" (no other providers for the moment)
     provider = "memory"
+    ## Available tokens per interval
     tokens = 5
+    ## Interval duration
     interval = "24h"
 
-## Outputs
+## List of outputs
+## File output target
 [[outputs.file]]
   ## Files to write to, "stdout" is a specially handled file.
+  ## Example: "./out.json"
   files = ["stdout"]
   ## Data format to output.
-  #data_format = "template"
+  ## Values: "json" or "template"
   data_format = "json"
+#  ## Go template used by the template data format. By defaut "Common Log Format".
+#  #data_format_template = "{{.ClientIP}} {{.HostName}} - [{{.FormattedTS}}] \"GET {{.DocumentPath}} {{.Protocol}}\" 200 1 \"{{.DocumentReferer}}\" \"{{.UserAgent}}\""
 
-# [[outputs.prometheus]]
-#   ## Address to listen on
-#   listen = ":9213"
-#   ## Path to publish the metrics on.
-#   path = "/metrics"
-#   ## Expiration interval for each metric. 0 == no expiration
-#   # expiration_interval = "60s"
-
+# Loki output configuration
 #[[outputs.loki]]
-  ## Loki URL
+#  ## Loki ingestion URL
 #  url = "http://localhost:3100"
-  ## Timeout
+#  ## Timeout.
 #  timeout = "2s"
-  ## Batch size
+#  ## Batch size
 #  batch_size = 10
-  ## Batch interval
+#  ## Batch interval
 #  batch_interval = "10s"
-
-#[[outputs.http]]
-#  ## URL is the address to send events to
-#  url = "https://enmkzhutspi1.x.pipedream.net"
-#  ## Timeout for HTTP message
-#  timeout = "2s"
-#  ## HTTP method, one of: "POST" or "PUT"
-#  method = "POST"
-#  ## HTTP Basic Auth credentials
-#  username = "username"
-#  password = "pa$$word"
-#  ## Compress body request using GZIP
-#  gzip = true
 #  ## Data format to output.
-#  data_format = "template"
+#  ## Values: "json" or "template"
+#  data_format = "json"
+
+# HTTP output configuration
+#[[outputs.http]]
+#  ## URL address to send events to
+#  url = "http://127.0.0.1:8080/"
+#  ## Timeout for HTTP message
+#  # timeout = "5s"
+#  ## HTTP method, one of: "POST" or "PUT"
+#  # method = "POST"
+#  ## HTTP Basic Auth credentials
+#  # username = "username"
+#  # password = "pa$$word"
+#  ## Compress body request using GZIP
+#  # gzip = true
+#  ## Data format to output.
+#  ## Values: "json" or "template"
+#  data_format = "json"

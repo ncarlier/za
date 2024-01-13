@@ -24,6 +24,7 @@ ZerØ Analytics is a Google Analytics alternative with:
 - Optional Time on Page support thanks to [Beacon API][beacon_api]
 - Optional GeoIP support thanks to [DB-IP](https://db-ip.com)
 - Customizable beacon image (1px or badge)
+- Usage control limitation
 
 Here an [example](./dashboard/grafana-loki_example.json) of what you can get using Grafana with Loki:
 
@@ -72,8 +73,7 @@ database = "./var/dbip-country-lite.mmdb"
 
 [global]
 [global.tags]
-  dc = "eu-west-1" # will tag all metrics with dc=eu-west-1
-  ## Environment variables can be used as tags, and throughout the config file
+  dc = "eu-west-1"
   user = "$USER"
 
 # List of trackers
@@ -89,11 +89,11 @@ badge = "zero|analytics|#00a5da"
 [[outputs.file]]
   ## Files to write to, "stdout" is a specially handled file.
   files = ["stdout"]
-  ## Data format to output ("json" or "template")
-  data_format = "template"
+  ## Data format to output
+  data_format = "json"
 ```
 
-A complete and documented example can be found [here](./etc/zero-analytics.example.toml).
+A complete and documented [example](./pkg/config/defaults.toml) can be generated with `--init-config` flag.
 
 ## Outputs
 
