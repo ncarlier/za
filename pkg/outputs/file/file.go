@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 
 	"github.com/ncarlier/za/pkg/events"
-	"github.com/ncarlier/za/pkg/logger"
 	"github.com/ncarlier/za/pkg/outputs"
 	"github.com/ncarlier/za/pkg/serializers"
 )
@@ -57,7 +57,7 @@ func (f *File) Connect() error {
 		}
 	}
 	f.writer = io.MultiWriter(writers...)
-	logger.Debug.Printf("using FILE output: %s\n", f.Files)
+	slog.Debug("using FILE output", "uri", f.Files)
 	return nil
 }
 

@@ -2,11 +2,11 @@ package middleware
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/ncarlier/za/pkg/helper"
-	"github.com/ncarlier/za/pkg/logger"
 )
 
 // Logger is a middleware to log HTTP request
@@ -15,15 +15,15 @@ func Logger(next http.Handler) http.Handler {
 		o := &responseObserver{ResponseWriter: w}
 		start := time.Now()
 		defer func() {
-			logger.Info.Printf(
-				"%s - - [%s] %q %d %d %q %q",
-				helper.ParseClientIP(r),
-				start.Format("02/Jan/2006:15:04:05 -0700"),
+			slog.Info(
 				fmt.Sprintf("%s %s %s", r.Method, r.URL, r.Proto),
-				o.status,
-				o.written,
-				r.Referer(),
-				r.UserAgent(),
+				"ip", helper.ParseClientIP(r),
+				"time", start.Format("02/Jan/2006:15:04:05 -0700"),
+				"duration", time.Since(start).Milliseconds(),
+				"status", o.status,
+				"bytes", o.written,
+				"referer", r.Referer(),
+				"ua", r.UserAgent(),
 			)
 		}()
 		next.ServeHTTP(o, r)

@@ -1,69 +1,61 @@
 package api
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/ncarlier/za/pkg/config"
 	"github.com/ncarlier/za/pkg/middleware"
 )
 
 func routes(conf *config.Config) Routes {
-	get := middleware.Methods("GET")
-	getAndPost := middleware.Methods("GET", "POST")
-	gzip := middleware.Gzip
-	cors := middleware.Cors("*")
-	logger := middleware.Logger
+	middlewares := middleware.Middlewares{
+		middleware.Gzip,
+		middleware.Cors("*"),
+	}
+	logger := middleware.Noop
+	if strings.Contains(conf.Log.Modules, "http") {
+		logger = middleware.Logger
+	}
 	return Routes{
 		route(
 			"/collect",
 			collectHandler,
-			getAndPost,
-			gzip,
-			cors,
-			logger,
+			middlewares.UseBefore(logger).UseAfter(
+				middleware.Methods(http.MethodGet, http.MethodPost),
+			)...,
 		),
 		route(
 			"/badge/",
 			badgeHandler,
-			get,
-			gzip,
-			cors,
+			middlewares.UseBefore(middleware.Methods(http.MethodGet))...,
 		),
 		route(
 			"/za.js",
 			fileHandler("za.js"),
-			get,
-			gzip,
-			cors,
+			middlewares.UseBefore(middleware.Methods(http.MethodGet))...,
 		),
 		route(
 			"/za.min.js",
 			fileHandler("za.min.js"),
-			middleware.Methods("GET"),
-			get,
-			gzip,
-			cors,
+			middlewares.UseBefore(middleware.Methods(http.MethodGet))...,
 		),
 		route(
 			"/varz",
 			varzHandler,
-			get,
-			gzip,
-			cors,
-			logger,
+			middlewares.UseBefore(middleware.Methods(http.MethodGet))...,
 		),
 		route(
 			"/healthz",
 			healthzHandler,
-			get,
-			gzip,
-			cors,
+			middlewares.UseBefore(middleware.Methods(http.MethodGet))...,
 		),
 		route(
 			"/",
 			infoHandler,
-			getAndPost,
-			gzip,
-			cors,
-			logger,
+			middlewares.UseBefore(logger).UseAfter(
+				middleware.Methods(http.MethodGet),
+			)...,
 		),
 	}
 }

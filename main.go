@@ -3,13 +3,15 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
+	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	configflag "github.com/ncarlier/webhookd/pkg/config/flag"
 	"github.com/ncarlier/za/pkg/api"
 	"github.com/ncarlier/za/pkg/config"
 	"github.com/ncarlier/za/pkg/logger"
@@ -18,24 +20,43 @@ import (
 	"github.com/ncarlier/za/pkg/version"
 )
 
-func main() {
-	conf := &config.Flags{}
-	configflag.Bind(conf, "ZA")
+func init() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: za OPTIONS\n\n")
+		fmt.Fprintf(os.Stderr, "Options:\n")
+		flag.PrintDefaults()
+	}
+}
 
+func main() {
+	// parse command line
 	flag.Parse()
 
+	// show version if asked
 	if *version.ShowVersion {
 		version.Print()
 		os.Exit(0)
 	}
 
-	level := "info"
-	if conf.Debug {
-		level = "debug"
+	// init configuration file
+	if config.InitConfigFlag != nil && *config.InitConfigFlag != "" {
+		if err := config.WriteDefaultConfigFile(*config.InitConfigFlag); err != nil {
+			log.Fatalf("unable to init configuration file: %v", err)
+		}
+		os.Exit(0)
 	}
-	logger.Init(level)
 
-	logger.Debug.Println("starting ZerØ Analytics server...")
+	// load configuration file
+	conf := config.NewConfig()
+	if config.ConfigFileFlag != nil && *config.ConfigFileFlag != "" {
+		if err := conf.LoadConfigFromfile(*config.ConfigFileFlag); err != nil {
+			log.Fatalf("unable to load configuration file: %v", err)
+		}
+	}
+
+	logger.Configure(conf.Log.Format, conf.Log.Level)
+
+	slog.Debug("starting ZerØ Analytics server...")
 
 	srv := server.NewServer(conf)
 
@@ -45,24 +66,25 @@ func main() {
 
 	go func() {
 		<-quit
-		logger.Debug.Println("server is shutting down...")
+		slog.Debug("server is shutting down...")
 		api.Shutdown()
 
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		if err := srv.Shutdown(ctx); err != nil {
-			logger.Error.Fatalf("could not gracefully shutdown the server: %v\n", err)
+			slog.Error("could not gracefully shutdown the server", "error", err)
+			os.Exit(1)
 		}
 		close(done)
 	}()
 
-	addr := conf.ListenAddr
 	api.Start()
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		logger.Error.Fatalf("could not listen on %s : %v\n", addr, err)
+		slog.Error("unable to start the server", "addr", conf.HTTP.ListenAddr, "err", err)
+		os.Exit(1)
 	}
 
 	<-done
-	logger.Debug.Println("server stopped")
+	slog.Debug("server stopped")
 }

@@ -2,12 +2,13 @@ package prometheus
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
 	"github.com/ncarlier/za/pkg/events"
-	"github.com/ncarlier/za/pkg/logger"
 	"github.com/ncarlier/za/pkg/outputs"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -69,13 +70,14 @@ func (p *Client) Connect() error {
 	}
 	http.Handle(pattern, promHandler)
 
-	logger.Debug.Printf("starting HTTP server (%s)...\n", srv.Addr)
+	slog.Debug("starting HTTP server...", "addr", srv.Addr)
 
 	p.wg.Add(1)
 	go func() {
 		defer p.wg.Done()
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logger.Error.Panicln("unable to create Prometheus server endpoint:", err)
+			slog.Error("unable to create Prometheus server endpoint", "error", err)
+			os.Exit(1)
 		}
 	}()
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -13,7 +14,6 @@ import (
 	"github.com/ncarlier/za/pkg/config"
 	"github.com/ncarlier/za/pkg/events"
 	"github.com/ncarlier/za/pkg/helper"
-	"github.com/ncarlier/za/pkg/logger"
 	"github.com/ncarlier/za/pkg/outputs"
 	"github.com/ncarlier/za/pkg/serializers"
 )
@@ -95,7 +95,7 @@ func (h *HTTP) Connect() error {
 
 	h.client = client
 
-	logger.Debug.Printf("using HTTP output: %s\n", h.URL)
+	slog.Debug("using HTTP output", "uri", h.URL)
 	return nil
 }
 

@@ -1,8 +1,20 @@
 package config
 
-// Flags contain global configuration
-type Flags struct {
-	ListenAddr string `flag:"listen-addr" desc:"HTTP listen address" default:":8080"`
-	ConfigFile string `flag:"config-file" desc:"Config file" default:"zero-analytics.toml"`
-	Debug      bool   `flag:"debug" desc:"Output debug logs" default:"false"`
+import (
+	"flag"
+	"os"
+)
+
+// ConfigFile is the flag used to load the config file
+var ConfigFileFlag *string
+
+// InitConfigFlag is the flag used to initialize the config file
+var InitConfigFlag = flag.String("init-config", "", "Initialize configuration file")
+
+func init() {
+	defaultValue := ""
+	if value, ok := os.LookupEnv("ZA_CONFIG"); ok {
+		defaultValue = value
+	}
+	ConfigFileFlag = flag.String("config", defaultValue, "Configuration file to load [ENV: ZA_CONFIG]")
 }

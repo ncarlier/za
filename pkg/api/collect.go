@@ -3,25 +3,28 @@ package api
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
+	"os"
 
 	"github.com/mssola/user_agent"
 	"github.com/ncarlier/za/pkg/config"
 	"github.com/ncarlier/za/pkg/events"
 	"github.com/ncarlier/za/pkg/geoip"
 	"github.com/ncarlier/za/pkg/helper"
-	"github.com/ncarlier/za/pkg/logger"
 	"github.com/ncarlier/za/pkg/outputs"
 )
 
 func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 	outputs, err := outputs.NewOutputsManager(conf.Outputs)
 	if err != nil {
-		logger.Error.Fatalf("unable to initialize outputs manager: %s", err)
+		slog.Error("unable to initialize outputs manager", "error", err)
+		os.Exit(1)
 	}
-	geoIPDatabase, err := geoip.New(conf.Global.GeoIPDatabase)
+	geoIPDatabase, err := geoip.New(conf.GeoIP.Database)
 	if err != nil {
-		logger.Error.Fatalf("unable to load geo IP database: %s", err)
+		slog.Error("unable to load geo IP database", "error", err)
+		os.Exit(1)
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Respect Do Not Track HTTP header
@@ -47,7 +50,7 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 		// Parse HTTP request
 		trackingID, eventType, err := parseRequest(r)
 		if err != nil {
-			logger.Debug.Printf("invalid request: %v", err)
+			slog.Debug("invalid request", "error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -55,9 +58,21 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 		// Validate tracker
 		tracker := conf.GetTracker(trackingID)
 		if tracker == nil || (eventType != "badge" && !helper.Match(tracker.Origin, r.Referer())) {
-			logger.Debug.Printf("tracking ID %s doesn't match website origin: %s", trackingID, r.Referer())
+			slog.Debug("tracking ID doesn't match website origin", "tid", trackingID, "referer", r.Referer())
 			w.WriteHeader(http.StatusBadRequest)
 			return
+		}
+
+		// Apply usage limitation
+		if tracker.RateLimiter != nil {
+			_, _, _, ok, err := tracker.RateLimiter.Take(r.Context(), "global")
+			if err != nil {
+				slog.Error("unable to apply usage limitation", "error", err)
+			} else if !ok {
+				slog.Debug("rate limiting activated", "tid", trackingID)
+				w.WriteHeader(http.StatusTooManyRequests)
+				return
+			}
 		}
 
 		// Create base event
@@ -76,7 +91,7 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 			err = errors.New("event type not yet implemented: " + eventType)
 		}
 		if err != nil {
-			logger.Debug.Printf("error: unable to create event: %v\n", err)
+			slog.Debug("unable to create event", "error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -89,7 +104,7 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 	})
 }
 
-func buildResponse(r *http.Request, w http.ResponseWriter, tracker *config.Tracker, event events.Event) {
+func buildResponse(r *http.Request, w http.ResponseWriter, tracker *config.TrackerConfig, event events.Event) {
 	values := r.Form
 	if values.Get("t") == "badge" {
 		// Write badge beacon as response

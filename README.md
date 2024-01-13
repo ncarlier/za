@@ -56,11 +56,21 @@ The configuration is a TOML file structured like this:
 ```toml
 # ZerØ Analytics configuration file
 
-[global]
-## GeoIP database location. GeoIP is disabled if not set.
-geo_ip_database = "./var/dbip-country-lite.mmdb"
+[log]
+## Log level
+level = "info"
+## Log format
+format = "text"
 
-# Global tags can be specified here in key="value" format.
+[http]
+## HTTP listen address
+listen_addr = ":8080"
+
+[geo-ip]
+## Geo IP database
+database = "./var/dbip-country-lite.mmdb"
+
+[global]
 [global.tags]
   dc = "eu-west-1" # will tag all metrics with dc=eu-west-1
   ## Environment variables can be used as tags, and throughout the config file

@@ -1,8 +1,9 @@
 package outputs
 
 import (
+	"log/slog"
+
 	"github.com/ncarlier/za/pkg/events"
-	"github.com/ncarlier/za/pkg/logger"
 )
 
 const maxEntriesChanSize = 5000
@@ -20,7 +21,7 @@ func NewOutputsManager(outputs []Output) (*Manager, error) {
 
 	for idx, output := range outputs {
 		if err := output.Connect(); err != nil {
-			logger.Error.Printf("unable to connect to the output writer: %v", err)
+			slog.Error("unable to connect to the output writer", "error", err)
 		} else {
 			manager.outputs[idx] = output
 		}
@@ -36,7 +37,7 @@ func (m *Manager) SendEvent(event events.Event) {
 	}
 	for _, out := range m.outputs {
 		if err := out.SendEvent(event); err != nil {
-			logger.Error.Println("unable to send event to the output:", err)
+			slog.Error("unable to send event to the output", "error", err)
 		}
 	}
 }
@@ -45,7 +46,7 @@ func (m *Manager) SendEvent(event events.Event) {
 func (m *Manager) Shutdown() {
 	for _, out := range m.outputs {
 		if err := out.Close(); err != nil {
-			logger.Error.Println("unable to close the output:", err)
+			slog.Error("unable to close the output", "error", err)
 		}
 	}
 }

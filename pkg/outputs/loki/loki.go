@@ -2,13 +2,13 @@ package loki
 
 import (
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sync"
 	"time"
 
 	"github.com/ncarlier/za/pkg/config"
 	"github.com/ncarlier/za/pkg/events"
-	"github.com/ncarlier/za/pkg/logger"
 	"github.com/ncarlier/za/pkg/outputs"
 	"github.com/ncarlier/za/pkg/outputs/loki/logproto"
 	"github.com/ncarlier/za/pkg/serializers"
@@ -65,7 +65,7 @@ func (l *Loki) Connect() error {
 
 	go l.run()
 
-	logger.Debug.Printf("using LOKI output: %s\n", u.String())
+	slog.Debug("using LOKI output", "uri", u.String())
 
 	return nil
 }
@@ -115,7 +115,7 @@ func (l *Loki) run() {
 			batchSize++
 			if batchSize >= l.BatchSize {
 				if err := l.write(batch); err != nil {
-					logger.Error.Printf("unable to send batch of page view to Loki (%s): %v\n", l.URL, err)
+					slog.Error("unable to send batch of page view to Loki", "uri", l.URL, "error", err)
 				}
 				batch = []events.Event{}
 				batchSize = 0
@@ -124,7 +124,7 @@ func (l *Loki) run() {
 		case <-maxWait.C:
 			if batchSize > 0 {
 				if err := l.write(batch); err != nil {
-					logger.Error.Printf("unable to send batch of page view to Loki (%s): %v\n", l.URL, err)
+					slog.Error("unable to send batch of page view to Loki", "uri", l.URL, "error", err)
 				}
 				batch = []events.Event{}
 				batchSize = 0

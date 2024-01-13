@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/ncarlier/za/pkg/events"
-	"github.com/ncarlier/za/pkg/logger"
 	"github.com/ncarlier/za/pkg/serializers/json"
 
 	"github.com/stretchr/testify/assert"
@@ -110,8 +109,4 @@ func TestMethod(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
-
-func init() {
-	logger.Init("debug")
 }

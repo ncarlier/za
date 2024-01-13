@@ -2,11 +2,11 @@ package server
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/ncarlier/za/pkg/api"
 	"github.com/ncarlier/za/pkg/config"
-	"github.com/ncarlier/za/pkg/logger"
 )
 
 // Server instance
@@ -16,7 +16,7 @@ type Server struct {
 
 // ListenAndServe starts server
 func (s *Server) ListenAndServe() error {
-	logger.Info.Println("server is ready to handle requests at", s.self.Addr)
+	slog.Info("server is ready to handle requests", "addr", s.self.Addr)
 	if err := s.self.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}
@@ -30,16 +30,10 @@ func (s *Server) Shutdown(ctx context.Context) error {
 }
 
 // NewServer creates new server instance
-func NewServer(flags *config.Flags) *Server {
-	conf := config.NewConfig()
-	err := conf.LoadConfig(flags.ConfigFile)
-	if err != nil {
-		logger.Error.Fatal("unable to load configuration: ", err)
-	}
-
+func NewServer(conf *config.Config) *Server {
 	server := &Server{}
 	server.self = &http.Server{
-		Addr:    flags.ListenAddr,
+		Addr:    conf.HTTP.ListenAddr,
 		Handler: api.NewRouter(conf),
 	}
 	return server

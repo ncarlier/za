@@ -37,8 +37,7 @@ services:
     image: "ncarlier/za"
     restart: always
     environment:
-      - ZA_DEBUG=true
-      - ZA_CONFIG_FILE=/etc/zero-analytics.toml
+      - ZA_CONFIG=/etc/zero-analytics.toml
     ports:
       - "${ZA_PORT:-8080}:8080"
     volumes:

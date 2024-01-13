@@ -172,7 +172,7 @@ func TestCollectHandler(t *testing.T) {
 
 func init() {
 	conf = config.NewConfig()
-	conf.Trackers = append(conf.Trackers, config.Tracker{
+	conf.Trackers = append(conf.Trackers, config.TrackerConfig{
 		Origin:     "http://localhost:8080",
 		TrackingID: "test",
 		Badge:      "ZerØ|analytics|#00a5da",

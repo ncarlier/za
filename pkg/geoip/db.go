@@ -1,9 +1,9 @@
 package geoip
 
 import (
+	"log/slog"
 	"net"
 
-	"github.com/ncarlier/za/pkg/logger"
 	"github.com/oschwald/maxminddb-golang"
 )
 
@@ -27,7 +27,7 @@ func New(filename string) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	logger.Debug.Printf("using geo IP database: %s", filename)
+	slog.Debug("using geo IP database", "uri", filename)
 	return &DB{
 		reader: reader,
 	}, nil

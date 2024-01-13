@@ -1,6 +1,7 @@
 package events
 
 import (
+	"log/slog"
 	"net"
 	"net/http"
 	"time"
@@ -8,7 +9,6 @@ import (
 	"github.com/mssola/user_agent"
 	"github.com/ncarlier/za/pkg/geoip"
 	"github.com/ncarlier/za/pkg/helper"
-	"github.com/ncarlier/za/pkg/logger"
 )
 
 // BaseEvent contains common events fields
@@ -56,7 +56,7 @@ func NewBaseEvent(r *http.Request, tags map[string]string, geoipdb *geoip.DB) Ba
 		if ip := net.ParseIP(clientIP); ip != nil {
 			var err error
 			if cc, err = geoipdb.LookupCountry(ip); err != nil {
-				logger.Warning.Printf("unable to retrieve IP country code: %v", err)
+				slog.Warn("unable to retrieve IP country code", "error", err)
 			}
 		}
 	}

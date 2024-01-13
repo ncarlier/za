@@ -31,23 +31,28 @@ listen_addr = "${ZA_HTTP_LISTEN_ADDR}"
 ## Geo IP database
 # Default: none
 # Example: "./var/dbip-country-lite.mmdb"
-database = "./var/dbip-country-lite.mmdb"
+database = "${ZA_GEO_IP_DATABASE}"
 
 [global]
-# Global tags can be specified here in key="value" format.
+## Global tags
+# Default: none
 [global.tags]
-  dc = "eu-west-1" # will tag all metrics with dc=us-east-1
+  #dc = "eu-west-1" # will tag all metrics with dc=us-east-1
   ## Environment variables can be used as tags, and throughout the config file
-  user = "$USER"
+  #user = "$USER"
 
+## Trackers
 [[trackers]]
-  origin = "https://9000-ncarlier-za-jmllixj7crh.ws-eu107.gitpod.io"
+  origin = "http://localhost:8000"
   tracking_id = "UA-XXXX-Y"
+  [trackers.tags]
+    foo = "bar"
   [trackers.rate_limiting]
     provider = "memory"
     tokens = 5
-    interval = "1m"
+    interval = "24h"
 
+## Outputs
 [[outputs.file]]
   ## Files to write to, "stdout" is a specially handled file.
   files = ["stdout"]
