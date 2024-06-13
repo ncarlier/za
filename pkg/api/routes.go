@@ -32,12 +32,12 @@ func routes(conf *config.Config) Routes {
 		),
 		route(
 			"/za.js",
-			fileHandler("za.js"),
+			fileHandler,
 			middlewares.UseBefore(middleware.Methods(http.MethodGet))...,
 		),
 		route(
 			"/za.min.js",
-			fileHandler("za.min.js"),
+			fileHandler,
 			middlewares.UseBefore(middleware.Methods(http.MethodGet))...,
 		),
 		route(

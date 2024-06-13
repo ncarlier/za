@@ -16,7 +16,7 @@ import (
 )
 
 func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
-	outputs, err := outputs.NewOutputsManager(conf.Outputs)
+	outputsMgr, err := outputs.NewOutputsManager(conf.Outputs)
 	if err != nil {
 		slog.Error("unable to initialize outputs manager", "error", err)
 		os.Exit(1)
@@ -82,11 +82,11 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 		var event events.Event
 		switch eventType {
 		case "pageview":
-			event, err = events.NewPageViewEvent(base, r)
+			event, err = events.NewPageViewEvent(&base, r)
 		case "exception":
-			event, err = events.NewExceptionEvent(base, r)
+			event, err = events.NewExceptionEvent(&base, r)
 		case "event", "badge":
-			event, err = events.NewSimpleEvent(base, r)
+			event, err = events.NewSimpleEvent(&base, r)
 		default:
 			err = errors.New("event type not yet implemented: " + eventType)
 		}
@@ -97,14 +97,14 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 		}
 
 		// Send event to outputs manager
-		outputs.SendEvent(event)
+		outputsMgr.SendEvent(event)
 
 		// Build response according to the event and the request
-		buildResponse(r, w, tracker, event)
+		buildResponse(r, w, tracker)
 	})
 }
 
-func buildResponse(r *http.Request, w http.ResponseWriter, tracker *config.TrackerConfig, event events.Event) {
+func buildResponse(r *http.Request, w http.ResponseWriter, tracker *config.TrackerConfig) {
 	values := r.Form
 	if values.Get("t") == "badge" {
 		// Write badge beacon as response
@@ -132,7 +132,7 @@ func handleDoNotTrackRequest(r *http.Request, w http.ResponseWriter) bool {
 	return false
 }
 
-func parseRequest(r *http.Request) (trackingID string, eventType string, err error) {
+func parseRequest(r *http.Request) (trackingID, eventType string, err error) {
 	r.ParseForm()
 	values := r.Form
 	trackingID = values.Get("tid")

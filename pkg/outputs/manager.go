@@ -6,8 +6,6 @@ import (
 	"github.com/ncarlier/za/pkg/events"
 )
 
-const maxEntriesChanSize = 5000
-
 // Manager used to handle outputs worker
 type Manager struct {
 	outputs []Output

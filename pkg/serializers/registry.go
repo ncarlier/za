@@ -45,7 +45,7 @@ func NewSerializer(config *Config) (Serializer, error) {
 	case "template":
 		serializer, err = template.NewSerializer(config.DataFormatTemplate)
 	default:
-		err = fmt.Errorf("Invalid data format: %s", config.DataFormat)
+		err = fmt.Errorf("invalid data format: %s", config.DataFormat)
 	}
 	return serializer, err
 }

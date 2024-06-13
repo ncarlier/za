@@ -12,13 +12,13 @@ ZerØ Analytics is a Google Analytics alternative with:
 - Zero personal data usage
 - Zero vendor lock-in
 - Zero complexity
-- And a googol of love!
+- And a [googol](googol) of love!
 
 ## Features
 
 - Single native executable
 - Shameful copy of the Google Analytics tag
-- Multiple output support ([Loki](loki), [Elasticsearch](elastic), files, ... )
+- Multiple output support ([Loki](loki), [Elasticsearch](elastic), [Prometheus](prometheus), files, ... )
 - JSON or templatized output
 - Track visited pages, uncaught errors and custom events
 - Optional Time on Page support thanks to [Beacon API][beacon_api]
@@ -48,6 +48,17 @@ $ curl -sf https://gobinaries.com/ncarlier/za | sh
 
 ```bash
 $ docker run -d --name=zero-analytics ncarlier/za
+```
+
+## Geting started
+
+Start the server:
+
+```bash
+# init and customize the configuration file
+za init-config -f config.toml
+# start server
+za -c config.toml serve
 ```
 
 ## Configuration
@@ -93,7 +104,7 @@ badge = "zero|analytics|#00a5da"
   data_format = "json"
 ```
 
-A complete and documented [example](./pkg/config/defaults.toml) can be generated with `--init-config` flag.
+A complete and documented [example](./pkg/config/defaults.toml) can be generated with `za init-config` command.
 
 ## Outputs
 
@@ -108,6 +119,8 @@ This output is usefull if you want to process events by an external toolchain.
   ## Files to write to, "stdout" is a specially handled file.
   files = ["/tmp/events.log"]
 ```
+
+Note: `stdout` is a special keyword used to write events to the process standard output (stdout).
 
 ### HTTP
 
@@ -130,7 +143,7 @@ This output is usefull if you want to process events by an external service.
 
 ### Loki
 
-*[Loki](https://grafana.com/oss/loki/) is a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus.*
+*[Loki](loki) is a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus.*
 
 ```toml
 [[outputs.loki]]
@@ -142,6 +155,33 @@ This output is usefull if you want to process events by an external service.
   batch_size = 10
   ## Batch interval
   batch_interval = "10s"
+```
+
+### Prometheus
+
+*[Prometheus](prometheus) collects and stores its metrics as time series data, i.e. metrics information is stored with the timestamp at which it was recorded, alongside optional key-value pairs called labels.*
+
+```toml
+[[outputs.prom]]
+  ## Address to listen on
+  listen = ":9213"
+  ## Path to publish the metrics on.
+  path = "/metrics"
+  ## Metric prefix name
+  prefix = "za_"
+  [[outputs.prom.metrics]]
+    ## Metric name
+    name = "pageview_total"
+    ## Filter on specific event type
+    ## Values: "pageview", "exception" ("event" otherwise)
+    type = "pageview"
+    ## Condition to produce metric
+    ## See syntax here: https://expr-lang.org/docs/language-definition
+    condition = 'tid == "UA-XXXX-Y"'
+    ## Metric labels can be specified here in key="value" format where value is the event property name (see below).
+    [outputs.prom.metrics.labels]
+      tid = "tid"
+      page = "path"
 ```
 
 #### Data format
@@ -173,8 +213,36 @@ Add this to your output configuration in order to specify data format:
   ## Data format to output ("json" or "template")
   data_format = "template"
   ## Go template used by the template data format. By defaut "Common Log Format".
-  data_format_template = "{{.ClientIP}} {{.HostName}} - [{{.FormattedTS}}] \"GET {{.DocumentPath}} {{.Protocol}}\" 200 1 \"{{.DocumentReferer}}\" \"{{.UserAgent}}\""
+  data_format_template = "{{.client_ip}} {{.hostname}} - [{{.timestamp}}] \"GET {{.path}} {{.protocol}}\" 200 1 \"{{.referer}}\" \"{{.user_agent}}\""
 ```
+
+The following event properties are available:
+
+| Property name | Decsription              | pageview | exception | event |
+|-------------|----------------------------|---|---|---|
+| tid         | Event ID                   | ✓ | ✓ | ✓ |
+| client_ip   | Client IP                  | ✓ | ✓ | ✓ |
+| user_agent  | User Agent                 | ✓ | ✓ | ✓ |
+| country     | Decoded country (if found) | ✓ | ✓ | ✓ |
+| os          | Decoded operating system   | ✓ | ✓ | ✓ |
+| browser     | Decoded browser            | ✓ | ✓ | ✓ |
+| tags        | Tags                       | ✓ | ✓ | ✓ |
+| timestamp   | Tags                       | ✓ | ✓ | ✓ |
+| protocol    | HTTP verv                  | ✓ | - | - |
+| language    | Browser language           | ✓ | - | - |
+| hostname    | URL hostname               | ✓ | - | - |
+| path        | URL path                   | ✓ | - | - |
+| referer     | HTTP Referer               | ✓ | - | - |
+| new_visitor | Is new visitor             | ✓ | - | - |
+| new_session | Is new session             | ✓ | - | - |
+| top         | Time on page               | ✓ | - | - |
+| msg         | Error message              | - | ✓ | - |
+| line        | Error line                 | - | ✓ | - |
+| column      | Error column               | - | ✓ | - |
+| url         | Error URL                  | - | ✓ | - |
+| error       | Error                      | - | ✓ | - |
+| payload     | Event custom payload       | - | - | ✓ |
+
 
 ## Add ZerØ Analytics to your site
 
@@ -307,6 +375,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 
 ---
 
+[googol]: https://en.wikipedia.org/wiki/Googol
 [loki]: https://grafana.com/oss/loki/
+[Prometheus]: https://prometheus.io/
 [elastic]: https://www.elastic.co/
 [beacon_api]: https://developer.mozilla.org/en-US/docs/Web/API/Beacon_API

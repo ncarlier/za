@@ -22,39 +22,54 @@ type PageView struct {
 }
 
 // HostName returns document hostname without scheme
-func (p PageView) HostName() string {
+func (p *PageView) HostName() string {
 	result := strings.TrimPrefix(p.DocumentHostName, "http://")
 	return strings.TrimPrefix(result, "https://")
 }
 
 // Type returns event type
-func (p PageView) Type() string {
+func (p *PageView) Type() string {
 	return Types.PageView
 }
 
 // TS returns timestamp
-func (p PageView) TS() time.Time {
+func (p *PageView) TS() time.Time {
 	return p.BaseEvent.TS()
 }
 
 // FormattedTS returns formatted timestamp
-func (p PageView) FormattedTS() string {
+func (p *PageView) FormattedTS() string {
 	return p.BaseEvent.FormattedTS()
 }
 
 // Labels returns page view labels
-func (p PageView) Labels() Labels {
+func (p *PageView) Labels() Labels {
 	labels := p.BaseEvent.Labels()
 	labels["type"] = p.Type()
 	return labels
 }
 
+// ToMap convert event to map structure
+func (p *PageView) ToMap() map[string]interface{} {
+	result := p.BaseEvent.ToMap()
+	result["protocol"] = p.Protocol
+	result["language"] = p.UserLanguage
+	result["hostname"] = p.HostName()
+	result["path"] = p.DocumentPath
+	result["referer"] = p.DocumentReferer
+	result["new_visitor"] = p.IsNewVisitor
+	result["new_session"] = p.IsNewSession
+	result["top"] = p.TimeOnPage
+
+	return result
+}
+
 // NewPageViewEvent create page view event from HTTP request
-func NewPageViewEvent(base BaseEvent, r *http.Request) (Event, error) {
+func NewPageViewEvent(base *BaseEvent, r *http.Request) (Event, error) {
 	q := r.Form
 
 	pageview := PageView{
-		BaseEvent:        base,
+		BaseEvent:        *base,
 		Protocol:         r.Proto,
 		UserLanguage:     q.Get("ul"),
 		DocumentHostName: helper.ParseHostname(q.Get("dh")),
@@ -64,5 +79,5 @@ func NewPageViewEvent(base BaseEvent, r *http.Request) (Event, error) {
 		IsNewSession:     q.Get("ns") == "1",
 		TimeOnPage:       helper.ParseInt(q.Get("top"), 0),
 	}
-	return pageview, nil
+	return &pageview, nil
 }

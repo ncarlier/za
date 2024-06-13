@@ -13,7 +13,7 @@ import (
 var conf *config.Config
 
 func newTestRequest(values url.Values) (*http.Request, error) {
-	req, err := http.NewRequest("GET", "/collect", nil)
+	req, err := http.NewRequest("GET", "/collect", http.NoBody)
 	if err != nil {
 		return nil, err
 	}

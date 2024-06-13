@@ -37,3 +37,6 @@ EXPOSE 8080 9213
 
 # Define entrypoint
 ENTRYPOINT [ "za" ]
+
+# Define command
+CMD [ "serve" ]

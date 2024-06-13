@@ -17,29 +17,40 @@ type Exception struct {
 }
 
 // Type returns event type
-func (ex Exception) Type() string {
+func (ex *Exception) Type() string {
 	return Types.Exception
 }
 
 // TS returns timestamp
-func (ex Exception) TS() time.Time {
+func (ex *Exception) TS() time.Time {
 	return ex.BaseEvent.TS()
 }
 
 // FormattedTS returns formatted timestamp
-func (ex Exception) FormattedTS() string {
+func (ex *Exception) FormattedTS() string {
 	return ex.BaseEvent.FormattedTS()
 }
 
 // Labels returns exception labels
-func (ex Exception) Labels() Labels {
+func (ex *Exception) Labels() Labels {
 	labels := ex.BaseEvent.Labels()
 	labels["type"] = ex.Type()
 	return labels
 }
 
+// ToMap convert event to map structure
+func (ex *Exception) ToMap() map[string]interface{} {
+	result := ex.BaseEvent.ToMap()
+	result["msg"] = ex.Message
+	result["line"] = ex.Line
+	result["column"] = ex.Column
+	result["url"] = ex.URL
+	result["error"] = ex.Error
+	return result
+}
+
 // NewExceptionEvent create exception event from HTTP request
-func NewExceptionEvent(base BaseEvent, r *http.Request) (Event, error) {
+func NewExceptionEvent(base *BaseEvent, r *http.Request) (Event, error) {
 	q := r.Form
 
 	line, err := strconv.Atoi(q.Get("exl"))
@@ -52,12 +63,12 @@ func NewExceptionEvent(base BaseEvent, r *http.Request) (Event, error) {
 	}
 
 	exception := Exception{
-		BaseEvent: base,
+		BaseEvent: *base,
 		Message:   q.Get("exm"),
 		Line:      line,
 		Column:    column,
 		URL:       q.Get("exu"),
 		Error:     q.Get("exe"),
 	}
-	return exception, nil
+	return &exception, nil
 }

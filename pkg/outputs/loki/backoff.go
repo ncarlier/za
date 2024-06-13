@@ -81,18 +81,18 @@ func (b *Backoff) ForAttempt(attempt float64) time.Duration {
 	if factor <= 0 {
 		factor = 2
 	}
-	//calculate this duration
+	// calculate this duration
 	minf := float64(min)
 	durf := minf * math.Pow(factor, attempt)
 	if b.Jitter {
 		durf = rand.Float64()*(durf-minf) + minf
 	}
-	//ensure float64 wont overflow int64
+	// ensure float64 wont overflow int64
 	if durf > maxInt64 {
 		return max
 	}
 	dur := time.Duration(durf)
-	//keep within bounds
+	// keep within bounds
 	if dur < min {
 		return min
 	}
