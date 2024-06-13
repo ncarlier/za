@@ -15,7 +15,7 @@ level = "${ZA_LOG_LEVEL}"
 # Values: "json" or "text"
 format = "${ZA_LOG_FORMAT}"
 ## Log modules.
-# Values: "http" (for logging HTTp request)
+# Values: "http" (for logging HTTP request)
 modules = "${ZA_LOG_MODULES}"
 
 [http]
@@ -64,7 +64,7 @@ database = "${ZA_GEO_IP_DATABASE}"
   ## Values: "json" or "template"
   data_format = "json"
 #  ## Go template used by the template data format. By defaut "Common Log Format".
-#  #data_format_template = "{{.ClientIP}} {{.HostName}} - [{{.FormattedTS}}] \"GET {{.DocumentPath}} {{.Protocol}}\" 200 1 \"{{.DocumentReferer}}\" \"{{.UserAgent}}\""
+#  data_format_template = "{{.client_ip}} {{.hostname}} - [{{.timestamp}}] \"GET {{.path}} {{.protocol}}\" 200 1 \"{{.referer}}\" \"{{.user_agent}}\""
 
 # Loki output configuration
 #[[outputs.loki]]
@@ -96,3 +96,28 @@ database = "${ZA_GEO_IP_DATABASE}"
 #  ## Data format to output.
 #  ## Values: "json" or "template"
 #  data_format = "json"
+
+# Prometheus output configuration
+#[[outputs.prom]]
+#  ## Address to listen on
+#  listen = ":9213"
+#  ## Path to publish the metrics on.
+#  # path = "/metrics"
+#  ## Metric prefix name
+#  # prefix = "za_"
+#  [[outputs.prom.metrics]]
+#    ## Metric name
+#    name = "pageview_total"
+#    ## Filter on specific event type
+#    ## Values: "pageview", "exception" ("event" otherwise)
+#    type = "pageview"
+#    ## Kind of metric
+#    ## Values: "counter" (no other kind for the moment)
+#    kind = "counter"
+#    ## Condition to produce metric
+#    ## See syntax here: https://expr-lang.org/docs/language-definition
+#    condition = 'tid == "UA-XXXX-Y"'
+#    ## Metric labels can be specified here in key="value" format where value is the event property name.
+#    [outputs.prom.metrics.labels]
+#      tid = "TrackingID"
+#      page = "DocumentPath"

@@ -17,51 +17,35 @@ import (
 
 // Client output
 type Client struct {
-	Listen string `toml:"listen"`
-	Path   string `toml:"path"`
+	Listen  string      `toml:"listen"`
+	Path    string      `toml:"path"`
+	Prefix  string      `toml:"prefix"`
+	Metrics []MetricDef `toml:"metrics"`
 
 	sync.Mutex
-	server           *http.Server
-	pageviewsCounter *prometheus.CounterVec
-	referersCounter  *prometheus.CounterVec
-	wg               sync.WaitGroup
+	server   *http.Server
+	wg       sync.WaitGroup
+	registry *prometheus.Registry
+	metrics  []*Metric
 }
 
-var sampleConfig = `
-  ## Address to listen on
-  listen = ":9213"
-  ## Path to publish the metrics on.
-  # path = "/metrics"
-`
-
-func newPageviewsCounter() *prometheus.CounterVec {
-	return prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "website_analytics_pageviews_total",
-			Help: "Number of page views.",
-		},
-		[]string{"tid", "hostname", "path", "isNewVisitor"},
-	)
+func (p *Client) registerCounters() error {
+	p.registry = prometheus.NewRegistry()
+	p.metrics = make([]*Metric, 0, len(p.Metrics))
+	for _, mDef := range p.Metrics {
+		metric, err := NewMetric(p.Prefix, &mDef)
+		if err != nil {
+			return err
+		}
+		p.metrics = append(p.metrics, metric)
+		p.registry.Register(metric.Counter)
+		slog.Debug("new metric registered", "name", mDef.Name, "type", mDef.Type, "condition", mDef.Condition)
+	}
+	return nil
 }
 
-func newReferersCounter() *prometheus.CounterVec {
-	return prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "website_analytics_referers_total",
-			Help: "Referers.",
-		},
-		[]string{"tid", "referer"},
-	)
-}
-
-// Connect activate the Prometheus writer
-func (p *Client) Connect() error {
-	registry := prometheus.NewRegistry()
-	p.pageviewsCounter = newPageviewsCounter()
-	registry.Register(p.pageviewsCounter)
-	p.referersCounter = newReferersCounter()
-	registry.Register(p.referersCounter)
-	promHandler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{ErrorHandling: promhttp.ContinueOnError})
+func (p *Client) startServer() {
+	promHandler := promhttp.HandlerFor(p.registry, promhttp.HandlerOpts{ErrorHandling: promhttp.ContinueOnError})
 
 	srv := &http.Server{Addr: p.Listen}
 	pattern := "/metrics"
@@ -80,7 +64,12 @@ func (p *Client) Connect() error {
 			os.Exit(1)
 		}
 	}()
+}
 
+// Connect activate the Prometheus writer
+func (p *Client) Connect() error {
+	p.registerCounters()
+	p.startServer()
 	return nil
 }
 
@@ -91,19 +80,12 @@ func (p *Client) Close() error {
 
 	err := p.server.Shutdown(ctx)
 	p.wg.Wait()
-	prometheus.Unregister(p.pageviewsCounter)
-	prometheus.Unregister(p.referersCounter)
+
+	// unregister metrics
+	for _, metric := range p.metrics {
+		p.registry.Unregister(metric.Counter)
+	}
 	return err
-}
-
-// SampleConfig get sample configuration
-func (p *Client) SampleConfig() string {
-	return sampleConfig
-}
-
-// Description get output description
-func (p *Client) Description() string {
-	return "Prometheus client"
 }
 
 // SendEvent send event to the Output
@@ -111,21 +93,19 @@ func (p *Client) SendEvent(event events.Event) error {
 	p.Lock()
 	defer p.Unlock()
 
-	labels := make(prometheus.Labels, len(event.Labels()))
-	for k, v := range event.Labels() {
-		labels[k] = v
+	for _, metric := range p.metrics {
+		metric.IncIfMatch(event)
 	}
-
-	p.pageviewsCounter.With(labels).Inc()
 
 	return nil
 }
 
 func init() {
-	outputs.Add("prometheus", func() outputs.Output {
+	outputs.Add("prom", func() outputs.Output {
 		return &Client{
 			Listen: ":9213",
 			Path:   "/metrics",
+			Prefix: "za_",
 		}
 	})
 }

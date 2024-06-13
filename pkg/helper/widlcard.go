@@ -30,6 +30,5 @@ func deepMatchRune(str, pattern []rune) bool {
 		str = str[1:]
 		pattern = pattern[1:]
 	}
-	// return len(str) == 0 && len(pattern) == 0
 	return len(pattern) == 0
 }

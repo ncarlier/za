@@ -43,4 +43,6 @@ type Event interface {
 	FormattedTS() string
 	// Labels return event labels
 	Labels() Labels
+	// ToMap convert event to map structure
+	ToMap() map[string]interface{}
 }

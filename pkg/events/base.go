@@ -24,17 +24,17 @@ type BaseEvent struct {
 }
 
 // TS returns timestamp
-func (ev BaseEvent) TS() time.Time {
+func (ev *BaseEvent) TS() time.Time {
 	return ev.Timestamp
 }
 
 // FormattedTS returns formatted timestamp
-func (ev BaseEvent) FormattedTS() string {
+func (ev *BaseEvent) FormattedTS() string {
 	return ev.Timestamp.Format("02/Jan/2006 03:04:05")
 }
 
 // Labels returns labels
-func (ev BaseEvent) Labels() Labels {
+func (ev *BaseEvent) Labels() Labels {
 	labels := Labels{
 		"tid": ev.TrackingID,
 	}
@@ -43,6 +43,20 @@ func (ev BaseEvent) Labels() Labels {
 		labels[k] = v
 	}
 	return labels
+}
+
+// ToMap convert event to map structure
+func (ev *BaseEvent) ToMap() map[string]interface{} {
+	return map[string]interface{}{
+		"tid":        ev.TrackingID,
+		"client_ip":  ev.ClientIP,
+		"user_agent": ev.UserAgent,
+		"country":    ev.CountryCode,
+		"browser":    ev.Browser,
+		"os":         ev.OS,
+		"tags":       ev.Tags,
+		"timestamp":  ev.FormattedTS(),
+	}
 }
 
 // NewBaseEvent create new base event

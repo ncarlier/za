@@ -64,6 +64,29 @@ test:
 	go test ./...
 .PHONY: test
 
+# Check code style
+check-style:
+	echo ">>> Checking code style..."
+	go vet ./...
+	go run honnef.co/go/tools/cmd/staticcheck@latest ./...
+.PHONY: check-style
+
+# Check code criticity
+check-criticity:
+	echo ">>> Checking code criticity..."
+	go run github.com/go-critic/go-critic/cmd/gocritic@latest check -enableAll ./...
+.PHONY: check-criticity
+
+# Check code security
+check-security:
+	echo ">>> Checking code security..."
+	go run github.com/securego/gosec/v2/cmd/gosec@latest -quiet ./...
+.PHONY: check-security
+
+## Code quality checks
+checks: check-style check-criticity
+.PHONY: checks
+
 ## Install executable
 install: release/$(EXECUTABLE)
 	echo ">>> Installing $(EXECUTABLE) to ${HOME}/.local/bin/$(EXECUTABLE) ..."

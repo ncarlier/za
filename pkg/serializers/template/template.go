@@ -9,7 +9,7 @@ import (
 	"github.com/ncarlier/za/pkg/events"
 )
 
-const defaultDataFormatTemplate = "{{.ClientIP}} {{.HostName}} - [{{.FormattedTS}}] \"GET {{.DocumentPath}} {{.Protocol}}\" 200 1 \"{{.DocumentReferer}}\" \"{{.UserAgent}}\""
+const defaultDataFormatTemplate = "{{.client_ip}} {{.hostname}} - [{{.timestamp}}] \"GET {{.path}} {{.protocol}}\" 200 1 \"{{.referer}}\" \"{{.user_agent}}\""
 
 var tplCounter int32
 
@@ -36,7 +36,7 @@ func NewSerializer(format string) (*serializer, error) {
 
 func (s *serializer) Serialize(event events.Event) ([]byte, error) {
 	serialized := new(bytes.Buffer)
-	err := s.template.Execute(serialized, event)
+	err := s.template.Execute(serialized, event.ToMap())
 	if err != nil {
 		return []byte{}, err
 	}

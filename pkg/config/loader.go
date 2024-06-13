@@ -13,8 +13,8 @@ import (
 	"github.com/ncarlier/za/pkg/usage"
 )
 
-// LoadConfigFromFile loads the given config file and applies it to c
-func (c *Config) LoadConfigFromfile(path string) error {
+// LoadFile loads the given config file and applies it to c
+func (c *Config) LoadFile(path string) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -31,25 +31,25 @@ func (c *Config) LoadConfigFromfile(path string) error {
 	}
 
 	// Parse log section table
-	if err = parseSectionTable(root, "log", &c.Log); err != nil {
+	if err := parseSectionTable(root, "log", &c.Log); err != nil {
 		return err
 	}
 	// Parse global section table
-	if err = parseSectionTable(root, "global", &c.Global); err != nil {
+	if err := parseSectionTable(root, "global", &c.Global); err != nil {
 		return err
 	}
 	// Parse Geo IP section table
-	if err = parseSectionTable(root, "geo-ip", &c.GeoIP); err != nil {
+	if err := parseSectionTable(root, "geo-ip", &c.GeoIP); err != nil {
 		return err
 	}
 
 	// Parse trackers section table
-	if err = c.parseTrackersTable(root); err != nil {
+	if err := c.parseTrackersTable(root); err != nil {
 		return err
 	}
 
 	// Parse outputs section table
-	if err = c.parseOutputsTable(root); err != nil {
+	if err := c.parseOutputsTable(root); err != nil {
 		return err
 	}
 
@@ -115,10 +115,8 @@ func (c *Config) addTracker(table *ast.Table) error {
 
 	if tracker.Badge == "" {
 		tracker.Badge = "ZerØ|analytics|#00a5da"
-	} else {
-		if !validateBadgeSyntaxe(tracker.Badge) {
-			return fmt.Errorf("invalid badge format: expecting \"<title>|<label>|<color>\" got: %s", tracker.Badge)
-		}
+	} else if !validateBadgeSyntaxe(tracker.Badge) {
+		return fmt.Errorf("invalid badge format: expecting \"<title>|<label>|<color>\" got: %s", tracker.Badge)
 	}
 	rateLimitingConfig := usage.RateLimitingConfig{}
 	if err := parseSectionTable(table, "rate_limiting", &rateLimitingConfig); err != nil {
