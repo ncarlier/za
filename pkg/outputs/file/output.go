@@ -7,41 +7,41 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/ncarlier/za/pkg/conditional"
 	"github.com/ncarlier/za/pkg/events"
 	"github.com/ncarlier/za/pkg/outputs"
 	"github.com/ncarlier/za/pkg/serializers"
 )
 
-// File output
-type File struct {
+// Output for file writing
+type Output struct {
 	Files []string `toml:"files"`
 
 	writer     io.Writer
 	closers    []io.Closer
 	serializer serializers.Serializer
+	condition  conditional.Expression
 }
 
-var sampleConfig = `
-  ## Files to write to, "stdout" is a specially handled file.
-  files = ["stdout", "/tmp/access.log"]
-  ## Data format to output.
-  data_format = "json"
-`
-
 // SetSerializer set data serializer
-func (f *File) SetSerializer(serializer serializers.Serializer) {
-	f.serializer = serializer
+func (o *Output) SetSerializer(serializer serializers.Serializer) {
+	o.serializer = serializer
+}
+
+// SetCondition set condition expression
+func (o *Output) SetCondition(condition conditional.Expression) {
+	o.condition = condition
 }
 
 // Connect activate the output writer
-func (f *File) Connect() error {
+func (o *Output) Connect() error {
 	writers := []io.Writer{}
 
-	if len(f.Files) == 0 {
-		f.Files = []string{"stdout"}
+	if len(o.Files) == 0 {
+		o.Files = []string{"stdout"}
 	}
 
-	for _, file := range f.Files {
+	for _, file := range o.Files {
 		if file == "stdout" {
 			writers = append(writers, os.Stdout)
 		} else {
@@ -53,18 +53,18 @@ func (f *File) Connect() error {
 			of := bufio.NewWriter(fd)
 
 			writers = append(writers, of)
-			f.closers = append(f.closers, fd)
+			o.closers = append(o.closers, fd)
 		}
 	}
-	f.writer = io.MultiWriter(writers...)
-	slog.Debug("using FILE output", "uri", f.Files)
+	o.writer = io.MultiWriter(writers...)
+	slog.Debug("using FILE output", "uri", o.Files)
 	return nil
 }
 
 // Close the output writer
-func (f *File) Close() error {
+func (o *Output) Close() error {
 	var err error
-	for _, c := range f.closers {
+	for _, c := range o.closers {
 		errClose := c.Close()
 		if errClose != nil {
 			err = errClose
@@ -73,24 +73,22 @@ func (f *File) Close() error {
 	return err
 }
 
-// SampleConfig returns sample configuration
-func (f *File) SampleConfig() string {
-	return sampleConfig
-}
-
 // Description returns description
-func (f *File) Description() string {
+func (o *Output) Description() string {
 	return "Send page view to file(s)"
 }
 
 // SendEvent send event to the Output
-func (f *File) SendEvent(event events.Event) error {
-	b, err := f.serializer.Serialize(event)
+func (o *Output) SendEvent(event events.Event) error {
+	if !o.condition.Match(event) {
+		return nil
+	}
+	b, err := o.serializer.Serialize(event)
 	if err != nil {
 		return fmt.Errorf("unable to serialize page view: %v", err)
 	}
 
-	if _, err = f.writer.Write(b); err != nil {
+	if _, err = o.writer.Write(b); err != nil {
 		return fmt.Errorf("unable to write page view to file output: %v", err)
 	}
 
@@ -99,6 +97,6 @@ func (f *File) SendEvent(event events.Event) error {
 
 func init() {
 	outputs.Add("file", func() outputs.Output {
-		return &File{}
+		return &Output{}
 	})
 }

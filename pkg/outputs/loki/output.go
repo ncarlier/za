@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ncarlier/za/pkg/conditional"
 	"github.com/ncarlier/za/pkg/config"
 	"github.com/ncarlier/za/pkg/events"
 	"github.com/ncarlier/za/pkg/outputs"
@@ -16,8 +17,8 @@ import (
 
 const maxEntriesChanSize = 5000
 
-// Loki output
-type Loki struct {
+// Output for Loki
+type Output struct {
 	URL           string          `toml:"url"`
 	Timeout       config.Duration `toml:"timeout"`
 	BatchSize     int             `toml:"batch_size"`
@@ -25,45 +26,40 @@ type Loki struct {
 
 	client     *Client
 	serializer serializers.Serializer
+	condition  conditional.Expression
 
 	quit      chan struct{}
 	entries   chan events.Event
 	waitGroup sync.WaitGroup
 }
 
-var sampleConfig = `
-  ## Loki URL
-  url = "http://localhost:3001"
-  ## Timeout
-	timeout = "3s"
-	## Batch interval
-	batch_interval = "5s"
-	## Batch size
-	batch_size = 100
-`
-
 // SetSerializer set data serializer
-func (l *Loki) SetSerializer(serializer serializers.Serializer) {
-	l.serializer = serializer
+func (o *Output) SetSerializer(serializer serializers.Serializer) {
+	o.serializer = serializer
+}
+
+// SetCondition set condition expression
+func (o *Output) SetCondition(condition conditional.Expression) {
+	o.condition = condition
 }
 
 // Connect activate the Loki writer
-func (l *Loki) Connect() error {
-	u, err := url.Parse(l.URL)
+func (o *Output) Connect() error {
+	u, err := url.Parse(o.URL)
 	if err != nil {
 		return fmt.Errorf("invalid Loki URL: %v", err)
 	}
 	u.Path = "/loki/api/v1/push"
 	cfg := Config{
 		URL:     u.String(),
-		Timeout: l.Timeout.Duration,
+		Timeout: o.Timeout.Duration,
 	}
-	l.client = NewClient(cfg)
+	o.client = NewClient(cfg)
 
-	l.quit = make(chan struct{})
-	l.entries = make(chan events.Event, maxEntriesChanSize)
+	o.quit = make(chan struct{})
+	o.entries = make(chan events.Event, maxEntriesChanSize)
 
-	go l.run()
+	go o.run()
 
 	slog.Debug("using LOKI output", "uri", u.String())
 
@@ -71,74 +67,72 @@ func (l *Loki) Connect() error {
 }
 
 // Close the output writer
-func (l *Loki) Close() error {
-	close(l.quit)
-	l.waitGroup.Wait()
+func (o *Output) Close() error {
+	close(o.quit)
+	o.waitGroup.Wait()
 	return nil
 }
 
-// SampleConfig get sample configuration
-func (l *Loki) SampleConfig() string {
-	return sampleConfig
-}
-
 // Description get output description
-func (l *Loki) Description() string {
+func (o *Output) Description() string {
 	return "Loki client"
 }
 
 // SendEvent send event to the Output
-func (l *Loki) SendEvent(event events.Event) error {
-	l.entries <- event
+func (o *Output) SendEvent(event events.Event) error {
+	if !o.condition.Match(event) {
+		return nil
+	}
+	o.entries <- event
 	return nil
 }
 
-func (l *Loki) run() {
-	l.waitGroup.Add(1)
+func (o *Output) run() {
+	o.waitGroup.Add(1)
 	var batch []events.Event
 	batchSize := 0
-	maxWait := time.NewTimer(l.BatchInterval.Duration)
+	maxWait := time.NewTimer(o.BatchInterval.Duration)
 
 	defer func() {
 		if batchSize > 0 {
-			l.write(batch)
+			o.write(batch)
 		}
-		l.waitGroup.Done()
+		o.waitGroup.Done()
 	}()
 
 	for {
 		select {
-		case <-l.quit:
+		case <-o.quit:
 			return
-		case entry := <-l.entries:
+		case entry := <-o.entries:
 			batch = append(batch, entry)
 			batchSize++
-			if batchSize >= l.BatchSize {
-				if err := l.write(batch); err != nil {
-					slog.Error("unable to send batch of page view to Loki", "uri", l.URL, "error", err)
+			if batchSize >= o.BatchSize {
+				if err := o.write(batch); err != nil {
+					slog.Error("unable to send batch of page view to Loki", "uri", o.URL, "error", err)
 				}
 				batch = []events.Event{}
 				batchSize = 0
-				maxWait.Reset(l.BatchInterval.Duration)
+				maxWait.Reset(o.BatchInterval.Duration)
 			}
 		case <-maxWait.C:
 			if batchSize > 0 {
-				if err := l.write(batch); err != nil {
-					slog.Error("unable to send batch of page view to Loki", "uri", l.URL, "error", err)
+				if err := o.write(batch); err != nil {
+					slog.Error("unable to send batch of page view to Loki", "uri", o.URL, "error", err)
 				}
 				batch = []events.Event{}
 				batchSize = 0
 			}
-			maxWait.Reset(l.BatchInterval.Duration)
+			maxWait.Reset(o.BatchInterval.Duration)
 		}
 	}
 }
 
-func (l *Loki) write(entries []events.Event) error {
+func (o *Output) write(entries []events.Event) error {
 	batch := map[string]*logproto.Stream{}
 
 	for _, event := range entries {
-		line, err := l.serializer.Serialize(event)
+		line, err := o.serializer.Serialize(event)
 		if err != nil {
 			return err
 		}
@@ -160,12 +154,12 @@ func (l *Loki) write(entries []events.Event) error {
 	for _, stream := range batch {
 		streams = append(streams, stream)
 	}
-	return l.client.Send(streams)
+	return o.client.Send(streams)
 }
 
 func init() {
 	outputs.Add("loki", func() outputs.Output {
-		return &Loki{
+		return &Output{
 			URL:           "http://localhost:3100",
 			Timeout:       config.Duration{Duration: time.Second * 2},
 			BatchInterval: config.Duration{Duration: 10 * time.Second},

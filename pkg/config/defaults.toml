@@ -65,6 +65,9 @@ database = "${ZA_GEO_IP_DATABASE}"
   data_format = "json"
 #  ## Go template used by the template data format. By defaut "Common Log Format".
 #  data_format_template = "{{.client_ip}} {{.hostname}} - [{{.timestamp}}] \"GET {{.path}} {{.protocol}}\" 200 1 \"{{.referer}}\" \"{{.user_agent}}\""
+#  ## Condition to use this output
+#  ## See syntax here: https://expr-lang.org/docs/language-definition
+#  condition = 'tid == "UA-XXXX-Y"'
 
 # Loki output configuration
 #[[outputs.loki]]
@@ -114,9 +117,6 @@ database = "${ZA_GEO_IP_DATABASE}"
 #    ## Kind of metric
 #    ## Values: "counter" (no other kind for the moment)
 #    kind = "counter"
-#    ## Condition to produce metric
-#    ## See syntax here: https://expr-lang.org/docs/language-definition
-#    condition = 'tid == "UA-XXXX-Y"'
 #    ## Metric labels can be specified here in key="value" format where value is the event property name.
 #    [outputs.prom.metrics.labels]
 #      tid = "TrackingID"

@@ -5,19 +5,23 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/ncarlier/za/pkg/conditional"
 	"github.com/ncarlier/za/pkg/events"
-	"github.com/ncarlier/za/pkg/expr"
 )
 
 func TesInvalidExpressionSyntax(t *testing.T) {
-	ev := &events.PageView{}
-	_, err := expr.NewConditionalExpression("###", ev)
+	conf := &conditional.Config{
+		Condition: "###",
+	}
+	_, err := conditional.NewConditionalExpression(conf)
 	assert.NotNil(t, err, "expression should not be valid")
 }
 
 func TestMatchingExpression(t *testing.T) {
-	ev := &events.PageView{}
-	condition, err := expr.NewConditionalExpression("browser == \"foo\"", ev)
+	conf := &conditional.Config{
+		Condition: "browser == \"foo\"",
+	}
+	condition, err := conditional.NewConditionalExpression(conf)
 	assert.Nil(t, err, "expression should be valid")
 	assert.NotNil(t, condition)
 

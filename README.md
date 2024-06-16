@@ -102,6 +102,9 @@ badge = "zero|analytics|#00a5da"
   files = ["stdout"]
   ## Data format to output
   data_format = "json"
+  ## Condition to use this output
+  ## See syntax here: https://expr-lang.org/docs/language-definition
+  condition == 'tid == "UA-XXX-Y"'
 ```
 
 A complete and documented [example](./pkg/config/defaults.toml) can be generated with `za init-config` command.
@@ -175,14 +178,28 @@ This output is usefull if you want to process events by an external service.
     ## Filter on specific event type
     ## Values: "pageview", "exception" ("event" otherwise)
     type = "pageview"
-    ## Condition to produce metric
-    ## See syntax here: https://expr-lang.org/docs/language-definition
-    condition = 'tid == "UA-XXXX-Y"'
     ## Metric labels can be specified here in key="value" format where value is the event property name (see below).
     [outputs.prom.metrics.labels]
       tid = "tid"
       page = "path"
 ```
+
+#### Condition
+
+An output can be used depending on the result of a conditional expression.
+The expression used the [Expr Lang](https://expr-lang.org/docs/language-definition) syntax.
+
+Example:
+
+```toml
+[[outputs.file]]
+  ## Write events to STDOUT
+  files = ["stdout"]
+  ## Writes events only coming from Firefox
+  condition = 'browser == "Firefox"'
+```
+
+See below for available event properties.
 
 #### Data format
 
@@ -215,6 +232,10 @@ Add this to your output configuration in order to specify data format:
   ## Go template used by the template data format. By defaut "Common Log Format".
   data_format_template = "{{.client_ip}} {{.hostname}} - [{{.timestamp}}] \"GET {{.path}} {{.protocol}}\" 200 1 \"{{.referer}}\" \"{{.user_agent}}\""
 ```
+
+See below for available event properties.
+
+#### Event properties
 
 The following event properties are available:
 
