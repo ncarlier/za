@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ncarlier/za/pkg/conditional"
 	"github.com/ncarlier/za/pkg/events"
 	"github.com/ncarlier/za/pkg/serializers/json"
 
@@ -34,7 +35,7 @@ func getEvent() events.Event {
 }
 
 func TestInvalidURL(t *testing.T) {
-	plugin := &HTTP{
+	plugin := &Output{
 		URL: "",
 	}
 
@@ -51,13 +52,13 @@ func TestMethod(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		plugin         *HTTP
+		plugin         *Output
 		expectedMethod string
 		connectError   bool
 	}{
 		{
 			name: "default method is POST",
-			plugin: &HTTP{
+			plugin: &Output{
 				URL:    u.String(),
 				Method: defaultMethod,
 			},
@@ -65,7 +66,7 @@ func TestMethod(t *testing.T) {
 		},
 		{
 			name: "put is okay",
-			plugin: &HTTP{
+			plugin: &Output{
 				URL:    u.String(),
 				Method: http.MethodPut,
 			},
@@ -73,7 +74,7 @@ func TestMethod(t *testing.T) {
 		},
 		{
 			name: "get is invalid",
-			plugin: &HTTP{
+			plugin: &Output{
 				URL:    u.String(),
 				Method: http.MethodGet,
 			},
@@ -81,7 +82,7 @@ func TestMethod(t *testing.T) {
 		},
 		{
 			name: "method is case insensitive",
-			plugin: &HTTP{
+			plugin: &Output{
 				URL:    u.String(),
 				Method: "poST",
 			},
@@ -98,6 +99,8 @@ func TestMethod(t *testing.T) {
 
 			serializer, _ := json.NewSerializer()
 			tt.plugin.SetSerializer(serializer)
+			expression, _ := conditional.NewConditionalExpression(&conditional.Config{Condition: ""})
+			tt.plugin.SetCondition(expression)
 			err = tt.plugin.Connect()
 			if tt.connectError {
 				require.Error(t, err)

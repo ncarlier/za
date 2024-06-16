@@ -1,21 +1,21 @@
 package prometheus
 
 import (
+	"log/slog"
+
 	"github.com/ncarlier/za/pkg/events"
-	"github.com/ncarlier/za/pkg/expr"
 	"github.com/ncarlier/za/pkg/reflection"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Metric struct {
-	Type      string
-	Counter   *prometheus.CounterVec
-	Condition *expr.ConditionalExpression
-	Labels    map[string]string
+	Type    string
+	Counter *prometheus.CounterVec
+	Labels  map[string]string
 }
 
 func (m *Metric) IncIfMatch(event events.Event) bool {
-	if m.Type == event.Type() && m.Condition.Match(event) {
+	if m.Type == event.Type() {
 		obj := event.ToMap()
 		labels := make(prometheus.Labels, len(m.Labels))
 		for k, v := range m.Labels {
@@ -26,28 +26,17 @@ func (m *Metric) IncIfMatch(event events.Event) bool {
 			}
 		}
 
-		m.Counter.With(labels).Inc()
-		return true
+		if counter, err := m.Counter.GetMetricWith(labels); err == nil {
+			counter.Inc()
+			return true
+		} else {
+			slog.Error("invalid metric definition, please check your labels configuration", "error", err)
+		}
 	}
 	return false
 }
 
 func NewMetric(prefix string, def *MetricDef) (*Metric, error) {
-	var input events.Event
-	switch def.Type {
-	case events.Types.PageView:
-		input = &events.PageView{}
-	case events.Types.Exception:
-		input = &events.Exception{}
-	default:
-		input = &events.SimpleEvent{}
-	}
-
-	condition, err := expr.NewConditionalExpression(def.Condition, input)
-	if err != nil {
-		return nil, err
-	}
-
 	// TODO add global labels
 	labelNames := make([]string, 0, len(def.Labels))
 	for label := range def.Labels {
@@ -63,9 +52,8 @@ func NewMetric(prefix string, def *MetricDef) (*Metric, error) {
 		labelNames,
 	)
 	return &Metric{
-		Type:      def.Type,
-		Condition: condition,
-		Counter:   counter,
-		Labels:    def.Labels,
+		Type:    def.Type,
+		Counter: counter,
+		Labels:  def.Labels,
 	}, nil
 }

@@ -8,6 +8,7 @@ import (
 	"dario.cat/mergo"
 	"github.com/influxdata/toml"
 	"github.com/influxdata/toml/ast"
+	"github.com/ncarlier/za/pkg/conditional"
 	"github.com/ncarlier/za/pkg/outputs"
 	"github.com/ncarlier/za/pkg/serializers"
 	"github.com/ncarlier/za/pkg/usage"
@@ -143,11 +144,22 @@ func (c *Config) addOutput(name string, table *ast.Table) error {
 	// arbitrary types of output, so build the serializer and set it.
 	switch t := output.(type) {
 	case serializers.SerializerOutput:
-		serializer, err := buildSerializer(name, table)
+		serializer, err := buildSerializer(table)
 		if err != nil {
 			return err
 		}
 		t.SetSerializer(serializer)
+	}
+
+	// If the output has a SetCondition function, then this means it can send
+	// event regarding a conditional expression, so build the expression and set it.
+	switch t := output.(type) {
+	case conditional.Output:
+		condition, err := buildConditionalExpression(table)
+		if err != nil {
+			return err
+		}
+		t.SetCondition(condition)
 	}
 
 	if err := toml.UnmarshalTable(table, output); err != nil {
@@ -158,7 +170,7 @@ func (c *Config) addOutput(name string, table *ast.Table) error {
 	return nil
 }
 
-func buildSerializer(name string, tbl *ast.Table) (serializers.Serializer, error) {
+func buildSerializer(tbl *ast.Table) (serializers.Serializer, error) {
 	c := &serializers.Config{}
 
 	if node, ok := tbl.Fields["data_format"]; ok {
@@ -184,4 +196,19 @@ func buildSerializer(name string, tbl *ast.Table) (serializers.Serializer, error
 	delete(tbl.Fields, "data_format")
 	delete(tbl.Fields, "data_format_template")
 	return serializers.NewSerializer(c)
+}
+
+func buildConditionalExpression(tbl *ast.Table) (conditional.Expression, error) {
+	c := &conditional.Config{}
+
+	if node, ok := tbl.Fields["condition"]; ok {
+		if kv, ok := node.(*ast.KeyValue); ok {
+			if str, ok := kv.Value.(*ast.String); ok {
+				c.Condition = str.Value
+			}
+		}
+	}
+
+	delete(tbl.Fields, "condition")
+	return conditional.NewConditionalExpression(c)
 }

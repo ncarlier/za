@@ -1,8 +1,9 @@
-package expr
+package conditional
 
 import (
 	"fmt"
 	"log/slog"
+	"maps"
 	"strings"
 
 	"github.com/expr-lang/expr"
@@ -15,17 +16,19 @@ var exprPlugins = map[string]interface{}{
 	"toUpper": strings.ToUpper,
 }
 
-// ConditionalExpression is a model for a conditional expression applied on an article
-type ConditionalExpression struct {
+// internalExpression is a model for a conditional expression applied on an article
+type intenalExpression struct {
 	expression string
 	prog       *vm.Program
 }
 
-// NewConditionalExpression creates a new conditional expression
-func NewConditionalExpression(expression string, event events.Event) (*ConditionalExpression, error) {
+// newConditionalExpression creates a new conditional expression
+func newConditionalExpression(expression string, input map[string]interface{}) (Expression, error) {
 	var prog *vm.Program
 	if strings.TrimSpace(expression) != "" {
-		args := buildExprArgs(event)
+		args := make(map[string]interface{})
+		maps.Copy(args, input)
+		maps.Copy(args, exprPlugins)
 
 		options := []expr.Option{
 			expr.Env(args),
@@ -37,19 +40,18 @@ func NewConditionalExpression(expression string, event events.Event) (*Condition
 			return nil, fmt.Errorf("invalid conditional expression: %s", err.Error())
 		}
 	}
-	return &ConditionalExpression{
+	return &intenalExpression{
 		expression: expression,
 		prog:       prog,
 	}, nil
 }
 
-// Match test ifthe article match the conditional expression
-func (c *ConditionalExpression) Match(event events.Event) bool {
+// Match test if the event match the conditional expression
+func (c *intenalExpression) Match(event events.Event) bool {
 	if c.prog == nil {
 		return true
 	}
-	args := buildExprArgs(event)
-	output, err := expr.Run(c.prog, args)
+	output, err := expr.Run(c.prog, event.ToMap())
 	if err != nil {
 		slog.Error("unable to build expression arguments", "expr", c.expression)
 		return false
@@ -58,14 +60,6 @@ func (c *ConditionalExpression) Match(event events.Event) bool {
 }
 
 // String returns the string expression
-func (c *ConditionalExpression) String() string {
+func (c *intenalExpression) String() string {
 	return c.expression
-}
-
-func buildExprArgs(event events.Event) map[string]interface{} {
-	env := event.ToMap()
-	for k, v := range exprPlugins {
-		env[k] = v
-	}
-	return env
 }
