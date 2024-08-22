@@ -164,12 +164,19 @@
       return false;
     };
   }
+
+  function bytesToBase64(bytes) {
+    const binString = Array.from(bytes, (byte) =>
+      String.fromCodePoint(byte),
+    ).join("")
+    return window.btoa(binString)
+  }
   
   function trackEvent(payload) {
     const q = {
       tid: config.tid,
       t: 'event',
-      d: window.btoa(JSON.stringify(payload)),
+      d: bytesToBase64(new TextEncoder().encode(JSON.stringify(payload))),
       z: Date.now(), // Cache buster
     };
     writeBeaconImg(q);
