@@ -39,6 +39,10 @@ func (c *Config) LoadFile(path string) error {
 	if err := parseSectionTable(root, "global", &c.Global); err != nil {
 		return err
 	}
+	// Parse HTTTP section table
+	if err := parseSectionTable(root, "http", &c.HTTP); err != nil {
+		return err
+	}
 	// Parse Geo IP section table
 	if err := parseSectionTable(root, "geo-ip", &c.GeoIP); err != nil {
 		return err
