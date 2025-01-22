@@ -1,7 +1,7 @@
 #########################################
 # Build stage
 #########################################
-FROM golang:1.21 AS builder
+FROM golang:1.22 AS builder
 
 # Repository location
 ARG REPOSITORY=github.com/ncarlier
@@ -21,7 +21,7 @@ RUN make build
 #########################################
 # Distribution stage
 #########################################
-FROM gcr.io/distroless/base-debian11
+FROM gcr.io/distroless/base-debian12:nonroot
 
 # Repository location
 ARG REPOSITORY=github.com/ncarlier

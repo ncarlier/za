@@ -14,7 +14,7 @@ listen_addr = "${ZA_HTTP_LISTEN_ADDR}"
 
 [geo-ip]
 ## Geo IP database
-database = "./var/dbip-country-lite.mmdb"
+#database = "./var/dbip-country-lite.mmdb"
 
 [global]
 # Global tags can be specified here in key="value" format.
@@ -30,8 +30,29 @@ database = "./var/dbip-country-lite.mmdb"
     tokens = 5
     interval = "1m"
 
+# STDOUT output configuration
 [[outputs.file]]
   ## Files to write to, "stdout" is a specially handled file.
   files = ["stdout"]
   ## Data format to output.
   data_format = "json"
+
+# Loki output configuration
+[[outputs.loki]]
+  ## Loki ingestion URL
+  url = "http://loki:3100"
+
+# Prometheus output configuration
+[[outputs.prom]]
+  ## Address to listen on
+  listen = ":9213"
+  [[outputs.prom.metrics]]
+    ## Metric name
+    name = "pageview_total"
+    ## Filter on specific event type
+    ## Values: "pageview", "exception", "ping" or "event"
+    type = "pageview"
+    ## Metric labels can be specified here in key="value" format where value is the event property name.
+    [outputs.prom.metrics.labels]
+      tid = "tid"
+      page = "path"
