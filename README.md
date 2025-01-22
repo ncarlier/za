@@ -20,7 +20,7 @@ ZerØ Analytics is a Google Analytics alternative with:
 - Shameful copy of the Google Analytics tag
 - Multiple output support ([Loki](loki), [Elasticsearch](elastic), [Prometheus](prometheus), files, ... )
 - JSON or templatized output
-- Track visited pages, uncaught errors and custom events
+- Track visited pages, uncaught errors, [HTML ping](hyperlink_auditing), and custom events
 - Optional Time on Page support thanks to [Beacon API][beacon_api]
 - Optional GeoIP support thanks to [DB-IP](https://db-ip.com)
 - Customizable beacon image (1px or badge)
@@ -176,7 +176,7 @@ This output is usefull if you want to process events by an external service.
     ## Metric name
     name = "pageview_total"
     ## Filter on specific event type
-    ## Values: "pageview", "exception" ("event" otherwise)
+    ## Values: "pageview", "exception", "link" or "event"
     type = "pageview"
     ## Metric labels can be specified here in key="value" format where value is the event property name (see below).
     [outputs.prom.metrics.labels]
@@ -205,7 +205,7 @@ See below for available event properties.
 
 Some outputs are able to send formated events.
 This is the case for `Loki`, `HTTP`, and `File`.
-By default they format the event data  as `JSON`:
+By default they format the event data as `JSON`:
 
 ```json
 {
@@ -239,30 +239,32 @@ See below for available event properties.
 
 The following event properties are available:
 
-| Property name | Decsription              | pageview | exception | event |
-|-------------|----------------------------|---|---|---|
-| tid         | Event ID                   | ✓ | ✓ | ✓ |
-| client_ip   | Client IP                  | ✓ | ✓ | ✓ |
-| user_agent  | User Agent                 | ✓ | ✓ | ✓ |
-| country     | Decoded country (if found) | ✓ | ✓ | ✓ |
-| os          | Decoded operating system   | ✓ | ✓ | ✓ |
-| browser     | Decoded browser            | ✓ | ✓ | ✓ |
-| tags        | Tags                       | ✓ | ✓ | ✓ |
-| timestamp   | Tags                       | ✓ | ✓ | ✓ |
-| protocol    | HTTP verv                  | ✓ | - | - |
-| language    | Browser language           | ✓ | - | - |
-| hostname    | URL hostname               | ✓ | - | - |
-| path        | URL path                   | ✓ | - | - |
-| referer     | HTTP Referer               | ✓ | - | - |
-| new_visitor | Is new visitor             | ✓ | - | - |
-| new_session | Is new session             | ✓ | - | - |
-| top         | Time on page               | ✓ | - | - |
-| msg         | Error message              | - | ✓ | - |
-| line        | Error line                 | - | ✓ | - |
-| column      | Error column               | - | ✓ | - |
-| url         | Error URL                  | - | ✓ | - |
-| error       | Error                      | - | ✓ | - |
-| payload     | Event custom payload       | - | - | ✓ |
+| Property name | Decsription              | pageview | exception | ping | event |
+|-------------|----------------------------|---|---|---|---|
+| tid         | Event ID                   | ✓ | ✓ | ✓ | ✓ |
+| client_ip   | Client IP                  | ✓ | ✓ | ✓ | ✓ |
+| user_agent  | User Agent                 | ✓ | ✓ | ✓ | ✓ |
+| country     | Decoded country (if found) | ✓ | ✓ | ✓ | ✓ |
+| os          | Decoded operating system   | ✓ | ✓ | ✓ | ✓ |
+| browser     | Decoded browser            | ✓ | ✓ | ✓ | ✓ |
+| tags        | Tags                       | ✓ | ✓ | ✓ | ✓ |
+| timestamp   | Timestamp                  | ✓ | ✓ | ✓ | ✓ |
+| protocol    | HTTP verb                  | ✓ | - | - | - |
+| language    | Browser language           | ✓ | - | - | - |
+| hostname    | URL hostname               | ✓ | - | - | - |
+| path        | URL path                   | ✓ | - | - | - |
+| referer     | HTTP Referer               | ✓ | - | - | - |
+| new_visitor | Is new visitor             | ✓ | - | - | - |
+| new_session | Is new session             | ✓ | - | - | - |
+| top         | Time on page               | ✓ | - | - | - |
+| msg         | Error message              | - | ✓ | - | - |
+| line        | Error line                 | - | ✓ | - | - |
+| column      | Error column               | - | ✓ | - | - |
+| url         | Error URL                  | - | ✓ | - | - |
+| error       | Error                      | - | ✓ | - | - |
+| from        | Click from URL             | - | - | ✓ | - |
+| to          | Click to URL               | - | - | ✓ | - |
+| payload     | Event custom payload       | - | - | ✓ | ✓ |
 
 
 ## Add ZerØ Analytics to your site
@@ -369,6 +371,15 @@ Note that a badge hit will produce a [custom event](#custom-events). This means 
 <img src="http://localhost:8080/badge/UA-XXXX-Y.svg?d=eyJmb28iOiJiYXIifQ%3D%3D" />
 ```
 
+#### Link clicks
+
+```html
+<!-- Somewere in your site -->
+<a href="https://example.org" ping="http://localhost:8080/ping/UA-XXXX-Y">My tracked link</a>
+```
+
+The browser will send the event to the collector endpoint if someone click on this link.
+
 ***
 
 ## License
@@ -401,3 +412,4 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>
 [Prometheus]: https://prometheus.io/
 [elastic]: https://www.elastic.co/
 [beacon_api]: https://developer.mozilla.org/en-US/docs/Web/API/Beacon_API
+[hyperlink_auditing]: https://html.spec.whatwg.org/multipage/links.html#hyperlink-auditing

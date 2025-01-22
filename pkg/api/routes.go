@@ -31,6 +31,11 @@ func routes(conf *config.Config) Routes {
 			middlewares.UseBefore(middleware.Methods(http.MethodGet))...,
 		),
 		route(
+			"/ping/",
+			pingHandler,
+			middlewares.UseBefore(middleware.Methods(http.MethodPost))...,
+		),
+		route(
 			"/za.js",
 			fileHandler,
 			middlewares.UseBefore(middleware.Methods(http.MethodGet))...,

@@ -57,7 +57,14 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 
 		// Validate tracker
 		tracker := conf.GetTracker(trackingID)
-		if tracker == nil || (eventType != "badge" && !helper.Match(tracker.Origin, r.Referer())) {
+		if tracker == nil {
+			slog.Debug("tracker not found", "tid", trackingID)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		// Validate origin
+		if eventType != "badge" && !tracker.Match(r) {
 			slog.Debug("tracking ID doesn't match website origin", "tid", trackingID, "referer", r.Referer())
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -82,11 +89,13 @@ func collectHandler(mux *http.ServeMux, conf *config.Config) http.Handler {
 		var event events.Event
 		switch eventType {
 		case "pageview":
-			event, err = events.NewPageViewEvent(&base, r)
+			event, err = events.NewPageViewEvent(base, r)
 		case "exception":
-			event, err = events.NewExceptionEvent(&base, r)
+			event, err = events.NewExceptionEvent(base, r)
+		case "ping":
+			event, err = events.NewPingEvent(base, r)
 		case "event", "badge":
-			event, err = events.NewSimpleEvent(&base, r)
+			event, err = events.NewSimpleEvent(base, r)
 		default:
 			err = errors.New("event type not yet implemented: " + eventType)
 		}

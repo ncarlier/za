@@ -60,7 +60,7 @@ func (ev *BaseEvent) ToMap() map[string]interface{} {
 }
 
 // NewBaseEvent create new base event
-func NewBaseEvent(r *http.Request, tags map[string]string, geoipdb *geoip.DB) BaseEvent {
+func NewBaseEvent(r *http.Request, tags map[string]string, geoipdb *geoip.DB) *BaseEvent {
 	q := r.Form
 	ua := user_agent.New(r.UserAgent())
 	browser, _ := ua.Browser()
@@ -74,7 +74,7 @@ func NewBaseEvent(r *http.Request, tags map[string]string, geoipdb *geoip.DB) Ba
 			}
 		}
 	}
-	return BaseEvent{
+	return &BaseEvent{
 		TrackingID:  q.Get("tid"),
 		ClientIP:    clientIP,
 		CountryCode: cc,

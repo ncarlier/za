@@ -8,6 +8,7 @@ var Types = newEventTypes()
 func newEventTypes() *eventTypes {
 	return &eventTypes{
 		Badge:     "badge", // event alias
+		Ping:      "ping",  // event alias
 		Event:     "event",
 		Exception: "exception",
 		PageView:  "pageview",
@@ -16,6 +17,7 @@ func newEventTypes() *eventTypes {
 
 type eventTypes struct {
 	Badge     string
+	Ping      string
 	Event     string
 	Exception string
 	PageView  string
@@ -25,6 +27,7 @@ func (t *eventTypes) IsValid(name string) bool {
 	switch name {
 	case
 		t.Badge,
+		t.Ping,
 		t.Event,
 		t.Exception,
 		t.PageView:

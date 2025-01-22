@@ -50,7 +50,7 @@ func (ex *Exception) ToMap() map[string]interface{} {
 }
 
 // NewExceptionEvent create exception event from HTTP request
-func NewExceptionEvent(base *BaseEvent, r *http.Request) (Event, error) {
+func NewExceptionEvent(base *BaseEvent, r *http.Request) (*Exception, error) {
 	q := r.Form
 
 	line, err := strconv.Atoi(q.Get("exl"))

@@ -52,6 +52,7 @@ func (p *PageView) Labels() Labels {
 // ToMap convert event to map structure
 func (p *PageView) ToMap() map[string]interface{} {
 	result := p.BaseEvent.ToMap()
+	result["type"] = p.Type()
 	result["protocol"] = p.Protocol
 	result["language"] = p.UserLanguage
 	result["hostname"] = p.HostName()
@@ -65,7 +66,7 @@ func (p *PageView) ToMap() map[string]interface{} {
 }
 
 // NewPageViewEvent create page view event from HTTP request
-func NewPageViewEvent(base *BaseEvent, r *http.Request) (Event, error) {
+func NewPageViewEvent(base *BaseEvent, r *http.Request) (*PageView, error) {
 	q := r.Form
 
 	pageview := PageView{

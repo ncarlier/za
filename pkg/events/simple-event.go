@@ -38,13 +38,14 @@ func (se *SimpleEvent) Labels() Labels {
 // ToMap convert event to map structure
 func (se *SimpleEvent) ToMap() map[string]interface{} {
 	result := se.BaseEvent.ToMap()
+	result["type"] = se.Type()
 	result["payload"] = se.Payload
 
 	return result
 }
 
 // NewSimpleEvent create simple event from HTTP request
-func NewSimpleEvent(base *BaseEvent, r *http.Request) (Event, error) {
+func NewSimpleEvent(base *BaseEvent, r *http.Request) (*SimpleEvent, error) {
 	q := r.Form
 
 	var objmap map[string]interface{}

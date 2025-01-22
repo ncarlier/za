@@ -112,7 +112,7 @@ database = "${ZA_GEO_IP_DATABASE}"
 #    ## Metric name
 #    name = "pageview_total"
 #    ## Filter on specific event type
-#    ## Values: "pageview", "exception" ("event" otherwise)
+#    ## Values: "pageview", "exception", "ping" or "event"
 #    type = "pageview"
 #    ## Kind of metric
 #    ## Values: "counter" (no other kind for the moment)

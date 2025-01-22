@@ -1,6 +1,9 @@
 package config
 
 import (
+	"net/http"
+
+	"github.com/ncarlier/za/pkg/helper"
 	"github.com/ncarlier/za/pkg/outputs"
 	"github.com/ncarlier/za/pkg/usage"
 )
@@ -44,6 +47,11 @@ type TrackerConfig struct {
 	Badge        string
 	RateLimiting map[string]interface{}
 	RateLimiter  usage.RateLimiter
+}
+
+// Match tracker with request header (Orgin od Referer)
+func (c TrackerConfig) Match(r *http.Request) bool {
+	return helper.Match(c.Origin, r.Header.Get("origin")) || helper.Match(c.Origin, r.Referer())
 }
 
 // NewConfig create new configuration
